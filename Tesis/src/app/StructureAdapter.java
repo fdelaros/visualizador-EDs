@@ -37,7 +37,7 @@ import studentProject.*;
  * JGraphAdapterDemo.
  *
  */
-public class StructureAdapter extends JApplet 
+public class StructureAdapter extends JApplet
 {
 	private static final long serialVersionUID = 2202072534703043194L;
 	private static final Dimension DEFAULT_SIZE = new Dimension(1500, 900);
@@ -65,17 +65,17 @@ public class StructureAdapter extends JApplet
 	 * @param args command line arguments
 	 */
 
-	@Override
+//	@Override
 	public void init()
 	{
 		StructureAdapter graph = new StructureAdapter();
 		graph.createGraph();
 
 		frame = new JFrame();
-		frame.getContentPane().setLayout(new BorderLayout());
-		JScrollPane graphContainer = new JScrollPane(graph);
-		frame.getContentPane().add(graphContainer, BorderLayout.CENTER);
-
+		frame.getContentPane().setLayout(new BorderLayout());  // modificacion
+        JScrollPane graphContainer = new JScrollPane(graph);
+		frame.getContentPane().add(graphContainer, BorderLayout.CENTER);  // modificacion
+		
 		JPanel options = new JPanel();
 		options.setPreferredSize(new Dimension(200, getHeight()));
 		options.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 20));
@@ -128,7 +128,7 @@ public class StructureAdapter extends JApplet
 		p4.add(getEdges);
 		options.add(p4);
 
-		frame.getContentPane().add(options, BorderLayout.EAST);
+		frame.getContentPane().add(options, BorderLayout.EAST);  // modificacion
 
 		ActionListener searchNode = new ActionListener() {
 			@Override
@@ -166,10 +166,10 @@ public class StructureAdapter extends JApplet
 		};
 		getEdges.addActionListener(searchEdges);
 
-		frame.setTitle("Test Estructuras de Datos");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.pack();
-		frame.setVisible(true);	
+		frame.setTitle("Test Estructuras de Datos");  // modificacion
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  // modificacion
+		frame.pack();  // modificacion
+		frame.setVisible(true);	  // modificacion
 
 	}
 
@@ -338,7 +338,7 @@ public class StructureAdapter extends JApplet
 		switchNodeColor(nodeList, HIGHLIGHT_COLOR);
 		if(!notFound.isEmpty()) {
 			String error = "No hubo resultados para nodo(s): " + notFound.substring(0, notFound.length() - 2);
-			JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE);   // modificacion
 		}
 	}
 
@@ -369,7 +369,7 @@ public class StructureAdapter extends JApplet
 		if(!edgesList.isEmpty()) switchEdgeColor(edgesList, HIGHLIGHT_COLOR);
 		if(!notFound.isEmpty()) {
 			String error = "No hubo resultados para arco(s): " + notFound.substring(0, notFound.length() - 2);
-			JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE);  // modificacion
 		}
 	}
 
@@ -398,7 +398,7 @@ public class StructureAdapter extends JApplet
 		}
 		catch(Exception e) {
 			String notFound = "No hubo resultados para el nodo: " + node;
-			JOptionPane.showMessageDialog(frame, notFound, "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(frame, notFound, "Error", JOptionPane.ERROR_MESSAGE);  // modificacion
 		}
 	}
 
@@ -441,15 +441,3 @@ public class StructureAdapter extends JApplet
 	}
 }
 
-class Nodo<T> {
-	T info;
-	String name;
-	
-	public Nodo(String name) {
-		this.name = name;
-	}
-	
-	public void setInfo (T info) {
-		this.info = info;
-	}
-}
