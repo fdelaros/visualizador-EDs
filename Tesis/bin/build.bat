@@ -22,7 +22,7 @@ REM Compila las clases del directotio source
 REM ---------------------------------------------------------
 
 cd src
-javac -cp "../jar_files/jgrapht-core-1.1.0.jar;../jar_files/jgrapht-ext-1.1.0.jar;../jar_files/jgrapht-io-1.1.0.jar;../jar_files/jgraphx-2.0.0.1.jar;../jar_files/studentList.jar" -d ../classes/ app/*.java
+javac -cp "../jar_files/jgrapht-core-1.1.0.jar;../jar_files/jgrapht-ext-1.1.0.jar;../jar_files/jgrapht-io-1.1.0.jar;../jar_files/jgraphx-2.0.0.1.jar;../jar_files/estructuraDatosPrueba.jar" -d ../classes/ app/*.java
 
 REM ---------------------------------------------------------
 REM Crea el archivo jar a partir de los archivos compilados

@@ -29,9 +29,12 @@ import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 
-//import model.data_structures.*;
-//import student.tree.*;
-import studentProject.*;
+import model.data_structures.*;
+
+
+
+
+
 /**
  * A demo applet that shows how to use JGraphX to visualize JGraphT graphs. Applet based on
  * JGraphAdapterDemo.
@@ -47,14 +50,13 @@ public class StructureAdapter extends JApplet
 	private static ArrayList<Nodo> nodos;
 	//list with the edges
 	@SuppressWarnings("rawtypes")
-	private static ArrayList<Edge<Nodo>> edges;
-	private static final String DEFAULT_NODE_COLOR = "#C3D9FF";
-	private static final String DEFAULT_EDGE_COLOR = "#6482B9";
+	private static ArrayList<Edge<Nodo>> edges; 
 	//color to highlight nodes and edges
 	private static final String HIGHLIGHT_COLOR = "#FFCC5C";
 
 	// create a JGraphT graph
 	private static ListenableGraph<String, DefaultEdge> g = new DefaultListenableGraph<>(new DefaultDirectedGraph<>(DefaultEdge.class));
+	@SuppressWarnings({ })
 	private StandardMethods sm = new StandardMethods();
 	private JFrame frame;
 
@@ -65,17 +67,18 @@ public class StructureAdapter extends JApplet
 	 * @param args command line arguments
 	 */
 
-//	@Override
+	//	@Override
 	public void init()
 	{
 		StructureAdapter graph = new StructureAdapter();
+		sm.createStructure();
 		graph.createGraph();
 
 		frame = new JFrame();
 		frame.getContentPane().setLayout(new BorderLayout());  // modificacion
-        JScrollPane graphContainer = new JScrollPane(graph);
+		JScrollPane graphContainer = new JScrollPane(graph);
 		frame.getContentPane().add(graphContainer, BorderLayout.CENTER);  // modificacion
-		
+
 		JPanel options = new JPanel();
 		options.setPreferredSize(new Dimension(200, getHeight()));
 		options.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 20));
@@ -105,17 +108,25 @@ public class StructureAdapter extends JApplet
 
 		JPanel p3 = new JPanel();
 		p3.setLayout(new BoxLayout(p3, BoxLayout.PAGE_AXIS));		
-		p3.add(new JLabel("Buscar camino"));
+		p3.add(new JLabel("Agregar nodo"));
 		JTextField tf3 = new JTextField(15);
 		tf3.setPreferredSize(new Dimension(getWidth(),20));
 		p3.add(tf3);
-		JTextField tf4 = new JTextField(15);
-		tf4.setPreferredSize(new Dimension(getWidth(),20));
-		p3.add(tf4);
-		JButton getPath = new JButton("Buscar");
-		getPath.setAlignmentX(LEFT_ALIGNMENT);
-		p3.add(getPath);
+		JButton addNode = new JButton("Agregar");
+		addNode.setAlignmentX(LEFT_ALIGNMENT);
+		p3.add(addNode);
 		options.add(p3);
+
+		JPanel p5 = new JPanel();
+		p5.setLayout(new BoxLayout(p5, BoxLayout.PAGE_AXIS));		
+		p5.add(new JLabel("Eliminar nodo"));
+		JTextField tf6 = new JTextField(15);
+		tf6.setPreferredSize(new Dimension(getWidth(),20));
+		p5.add(tf6);
+		JButton delNode = new JButton("Eliminar");
+		delNode.setAlignmentX(LEFT_ALIGNMENT);
+		p5.add(delNode);
+		options.add(p5);
 
 		JPanel p4 = new JPanel();
 		p4.setLayout(new BoxLayout(p4, BoxLayout.PAGE_AXIS));		
@@ -127,6 +138,14 @@ public class StructureAdapter extends JApplet
 		getEdges.setAlignmentX(LEFT_ALIGNMENT);
 		p4.add(getEdges);
 		options.add(p4);
+
+		JPanel p6 = new JPanel();
+		p6.setLayout(new BoxLayout(p6, BoxLayout.PAGE_AXIS));		
+		p6.add(new JLabel("Buscar camino"));
+		JButton getPath = new JButton("Buscar");
+		getEdges.setAlignmentX(LEFT_ALIGNMENT);
+		p6.add(getPath);
+		options.add(p6);
 
 		frame.getContentPane().add(options, BorderLayout.EAST);  // modificacion
 
@@ -148,14 +167,23 @@ public class StructureAdapter extends JApplet
 		};
 		getNeighbors.addActionListener(searchNeighbors);
 
-		ActionListener searchPath = new ActionListener() {
+		ActionListener addNewNode = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String nodeRoute = tf3.getText();
-				getPath(nodeRoute);
+				String nodeTag = tf3.getText();
+				addNodeIn(nodeTag);
 			}
 		};
-		getPath.addActionListener(searchPath);
+		addNode.addActionListener(addNewNode);
+
+		ActionListener deleteNodeAL = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String nodeTag = tf6.getText();
+				deleteNode(nodeTag);
+			}
+		};
+		delNode.addActionListener(deleteNodeAL);
 
 		ActionListener searchEdges = new ActionListener() {
 			@Override
@@ -165,6 +193,14 @@ public class StructureAdapter extends JApplet
 			}
 		};
 		getEdges.addActionListener(searchEdges);
+
+		ActionListener drawPath = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				findPath();
+			}
+		};
+		getPath.addActionListener(drawPath);
 
 		frame.setTitle("Test Estructuras de Datos");  // modificacion
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  // modificacion
@@ -227,7 +263,6 @@ public class StructureAdapter extends JApplet
 
 	@SuppressWarnings("rawtypes")
 	public void createGraph() {
-		sm.createStructure();
 
 		nodos = createNodes();
 		edges = createEdges() == null ? createEdgesForList() : createEdges();
@@ -262,7 +297,7 @@ public class StructureAdapter extends JApplet
 			layout.execute(jgxAdapter.getDefaultParent());
 		}
 
-		if(sm.startingNodeSet() != null) {
+		if(!sm.startingNodeSet().isEmpty()) {
 			String nodeTags = "";
 			ArrayList inputSet = sm.startingNodeSet();
 			for (int i = 0; i < inputSet.size() ; i++) {
@@ -274,27 +309,18 @@ public class StructureAdapter extends JApplet
 
 	}
 
-	//set the default color for the whole graph
-	@SuppressWarnings("rawtypes")
 	public void defaultColors() {
-		HashMap<DefaultEdge,com.mxgraph.model.mxICell> edgeToCellMap = jgxAdapter.getEdgeToCellMap();
-		HashMap<String,com.mxgraph.model.mxICell> vertexToCellMap = jgxAdapter.getVertexToCellMap();
-
-		Object[] edgeCellArray = new Object[edges.size()];
-		Object[] vertexCellArray = new com.mxgraph.model.mxICell[nodos.size()];
-
-
-		for (int i = 0; i < edges.size(); i++) {
-			Edge<Nodo> current = edges.get(i);
-			edgeCellArray[i] = (Object) edgeToCellMap.get(g.getEdge(current.start.name, current.end.name));
+		removeEdgesAndNodes();
+		addEdgesAndNodes();
+		if(sm.isLineal() == null || !sm.isLineal()) {
+			mxFastOrganicLayout layout = new  mxFastOrganicLayout(jgxAdapter);
+			layout.execute(jgxAdapter.getDefaultParent());
 		}
-		for (int i = 0; i < nodos.size(); i++) {
-			Nodo current = nodos.get(i);
-			vertexCellArray[i] = (Object) vertexToCellMap.get(current.name);
+		else {
+			mxHierarchicalLayout layout = new mxHierarchicalLayout(jgxAdapter);
+			layout.execute(jgxAdapter.getDefaultParent());
 		}
 
-		jgxAdapter.setCellStyle("strokeColor=" + DEFAULT_EDGE_COLOR, edgeCellArray);
-		jgxAdapter.setCellStyle("fillColor=" + DEFAULT_NODE_COLOR, vertexCellArray);
 	}
 
 	public void switchNodeColor(ArrayList<String> nodeList, String color) {
@@ -415,25 +441,122 @@ public class StructureAdapter extends JApplet
 		return edgeResult;
 	}
 
-	@SuppressWarnings({ "rawtypes" })
-	public void getPath(String nodes) {
+	public void addNodeIn(String node) {
+		defaultColors();
+		sm.addNode(node);
+		//Delete and refill current structure
+		removeEdgesAndNodes();
+		nodos = createNodes();
+		edges = createEdges() == null ? createEdgesForList() : createEdges();
+		addEdgesAndNodes();
+		System.out.println(findNode(node).name);		
+		if(sm.isLineal() == null || !sm.isLineal()) {
+			mxFastOrganicLayout layout = new  mxFastOrganicLayout(jgxAdapter);
+			layout.execute(jgxAdapter.getDefaultParent());
+		}
+		else {
+			mxHierarchicalLayout layout = new mxHierarchicalLayout(jgxAdapter);
+			layout.execute(jgxAdapter.getDefaultParent());
+		}
+
+		try {
+			//Color new node
+			ArrayList<String> nodeList = new ArrayList<String>();
+			nodeList.add(findNode(node).name);
+
+			switchNodeColor(nodeList, HIGHLIGHT_COLOR);
+		}
+		catch(Exception e) {
+			String notFound = "No hubo resultados para el nodo: " + node;
+			JOptionPane.showMessageDialog(frame, notFound, "Error", JOptionPane.ERROR_MESSAGE);  // modificacion
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void removeEdgesAndNodes() {
+		for(Edge<Nodo> edge: edges)
+			g.removeEdge(edge.start.name, edge.end.name);
+		for(Nodo nodo : nodos)
+			g.removeVertex(nodo.name);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void addEdgesAndNodes() {
+		//Add nodes to the graph
+		for(Nodo actual : nodos) 
+			g.addVertex(actual.name);
+
+
+		//Add edges
+		for(Edge<Nodo> actual : edges) {
+			g.addEdge(actual.start.name, actual.end.name);
+		}
+	}
+
+	public void deleteNode(String node) {
+		defaultColors();
+		if(sm.findNode(node) != null) {
+			//update node list
+			sm.deleteNode(node);
+			//Delete and refill current structure
+			removeEdgesAndNodes();
+			nodos = createNodes();
+			edges = createEdges() == null ? createEdgesForList() : createEdges();
+			addEdgesAndNodes();	
+			if(sm.isLineal() == null || !sm.isLineal()) {
+				mxFastOrganicLayout layout = new  mxFastOrganicLayout(jgxAdapter);
+				layout.execute(jgxAdapter.getDefaultParent());
+			}
+			else {
+				mxHierarchicalLayout layout = new mxHierarchicalLayout(jgxAdapter);
+				layout.execute(jgxAdapter.getDefaultParent());
+			}
+
+			if(findNode(node) == null) {
+				String message = "Nodo " + node + " eliminado.";
+				JOptionPane.showMessageDialog(frame, message, "Nodo eliminado", JOptionPane.INFORMATION_MESSAGE);
+			}
+			else {
+				String message = "Nodo " + node + " no fue eliminado.";
+				JOptionPane.showMessageDialog(frame, message, "Error", JOptionPane.ERROR_MESSAGE); 
+			}
+		}
+		else{
+			String message = "Nodo " + node + " no está en la estructura.";
+			JOptionPane.showMessageDialog(frame, message, "Error", JOptionPane.ERROR_MESSAGE); 
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void findPath() {
 		defaultColors();
 
-		String[] nodePath = nodes.split(",");
-		ArrayList<String> nodeList = new ArrayList<String>();
-		for(String a : nodePath) {
-			nodeList.add(a);
+		String message = "";
+		ArrayList<Edge<Nodo>> edgesInPath = new ArrayList<Edge<Nodo>>();
+		ArrayList nodeList = sm.getPath();
+		if(nodeList.size() > 1)
+		for (int i = 0; i < nodeList.size()-1; i++) {
+			if(findEdge(nodeList.get(i).toString(), nodeList.get(i+1).toString()) != null) {
+				edgesInPath.add(findEdge(nodeList.get(i).toString(), nodeList.get(i+1).toString()));
+			}
+			else {
+				message += nodeList.get(i).toString() + " => " + nodeList.get(i + 1).toString() + ", ";
+			}
+		}
+		ArrayList<String> colorNodes = new ArrayList<String>();
+		for(Object node : nodeList){
+			colorNodes.add(node.toString());
 		}
 
-		ArrayList<Edge<Nodo>> edgeList = new ArrayList<Edge<Nodo>>();
-		for (int i = 0; i < nodePath.length - 1; i++) {
-			Edge<Nodo> currentEdge = findEdge(nodePath[i], nodePath[i+1]);
-			edgeList.add(currentEdge);
-		}
+		switchNodeColor(colorNodes, HIGHLIGHT_COLOR);
+		switchEdgeColor(edgesInPath, HIGHLIGHT_COLOR);
 
-		switchNodeColor(nodeList, HIGHLIGHT_COLOR);
-		switchEdgeColor(edgeList, HIGHLIGHT_COLOR);
+		if(!message.isEmpty()){
+			String error = "Los arcos " + message + " no completan el camino.";
+			JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE); 
+		}
 	}
+
 
 	public static void main(String[] args) {
 		StructureAdapter sa = new StructureAdapter();
