@@ -13,6 +13,6 @@ REM ---------------------------------------------------------
 REM Ejecucion del programa
 REM ---------------------------------------------------------
 cd ..
-java -cp "./jar_files/jgrapht-core-1.1.0.jar;./jar_files/jgrapht-ext-1.1.0.jar;./jar_files/jgrapht-io-1.1.0.jar;./jar_files/jgraphx-2.0.0.1.jar;./jar_files/estructuraDatosPrueba.jar;./lib/Visualizador-Estructuras.jar" app/StructureAdapter
+java -cp "./jar_files/jgrapht-core-1.1.0.jar;./jar_files/jgrapht-ext-1.1.0.jar;./jar_files/jgrapht-io-1.1.0.jar;./jar_files/jgraphx-2.0.0.1.jar;./jar_files/estructura.jar;./lib/Visualizador-Estructuras.jar" app/StructureAdapter
 pause
 cd bin

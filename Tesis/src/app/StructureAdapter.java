@@ -29,7 +29,7 @@ import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 
-import model.data_structures.*;
+import student.tree.*;
 
 
 
@@ -297,7 +297,7 @@ public class StructureAdapter extends JApplet
 			layout.execute(jgxAdapter.getDefaultParent());
 		}
 
-		if(!sm.startingNodeSet().isEmpty()) {
+		if(sm.startingNodeSet() != null) {
 			String nodeTags = "";
 			ArrayList inputSet = sm.startingNodeSet();
 			for (int i = 0; i < inputSet.size() ; i++) {
@@ -443,23 +443,23 @@ public class StructureAdapter extends JApplet
 
 	public void addNodeIn(String node) {
 		defaultColors();
-		sm.addNode(node);
-		//Delete and refill current structure
-		removeEdgesAndNodes();
-		nodos = createNodes();
-		edges = createEdges() == null ? createEdgesForList() : createEdges();
-		addEdgesAndNodes();
-		System.out.println(findNode(node).name);		
-		if(sm.isLineal() == null || !sm.isLineal()) {
-			mxFastOrganicLayout layout = new  mxFastOrganicLayout(jgxAdapter);
-			layout.execute(jgxAdapter.getDefaultParent());
-		}
-		else {
-			mxHierarchicalLayout layout = new mxHierarchicalLayout(jgxAdapter);
-			layout.execute(jgxAdapter.getDefaultParent());
-		}
-
 		try {
+			sm.addNode(node);
+			//Delete and refill current structure
+			removeEdgesAndNodes();
+			nodos = createNodes();
+			edges = createEdges() == null ? createEdgesForList() : createEdges();
+			addEdgesAndNodes();	
+			if(sm.isLineal() == null || !sm.isLineal()) {
+				mxFastOrganicLayout layout = new  mxFastOrganicLayout(jgxAdapter);
+				layout.execute(jgxAdapter.getDefaultParent());
+			}
+			else {
+				mxHierarchicalLayout layout = new mxHierarchicalLayout(jgxAdapter);
+				layout.execute(jgxAdapter.getDefaultParent());
+			}
+
+
 			//Color new node
 			ArrayList<String> nodeList = new ArrayList<String>();
 			nodeList.add(findNode(node).name);
@@ -467,7 +467,7 @@ public class StructureAdapter extends JApplet
 			switchNodeColor(nodeList, HIGHLIGHT_COLOR);
 		}
 		catch(Exception e) {
-			String notFound = "No hubo resultados para el nodo: " + node;
+			String notFound = "No se ha agregado el nodo: " + node;
 			JOptionPane.showMessageDialog(frame, notFound, "Error", JOptionPane.ERROR_MESSAGE);  // modificacion
 		}
 	}
@@ -513,16 +513,16 @@ public class StructureAdapter extends JApplet
 			}
 
 			if(findNode(node) == null) {
-				String message = "Nodo " + node + " eliminado.";
+				String message = "El nodo " + node + " eliminado.";
 				JOptionPane.showMessageDialog(frame, message, "Nodo eliminado", JOptionPane.INFORMATION_MESSAGE);
 			}
 			else {
-				String message = "Nodo " + node + " no fue eliminado.";
+				String message = "El nodo " + node + " no fue eliminado.";
 				JOptionPane.showMessageDialog(frame, message, "Error", JOptionPane.ERROR_MESSAGE); 
 			}
 		}
 		else{
-			String message = "Nodo " + node + " no está en la estructura.";
+			String message = "El nodo " + node + " no está en la estructura.";
 			JOptionPane.showMessageDialog(frame, message, "Error", JOptionPane.ERROR_MESSAGE); 
 		}
 	}
@@ -535,14 +535,14 @@ public class StructureAdapter extends JApplet
 		ArrayList<Edge<Nodo>> edgesInPath = new ArrayList<Edge<Nodo>>();
 		ArrayList nodeList = sm.getPath();
 		if(nodeList.size() > 1)
-		for (int i = 0; i < nodeList.size()-1; i++) {
-			if(findEdge(nodeList.get(i).toString(), nodeList.get(i+1).toString()) != null) {
-				edgesInPath.add(findEdge(nodeList.get(i).toString(), nodeList.get(i+1).toString()));
+			for (int i = 0; i < nodeList.size()-1; i++) {
+				if(findEdge(nodeList.get(i).toString(), nodeList.get(i+1).toString()) != null) {
+					edgesInPath.add(findEdge(nodeList.get(i).toString(), nodeList.get(i+1).toString()));
+				}
+				else {
+					message += nodeList.get(i).toString() + " => " + nodeList.get(i + 1).toString() + ", ";
+				}
 			}
-			else {
-				message += nodeList.get(i).toString() + " => " + nodeList.get(i + 1).toString() + ", ";
-			}
-		}
 		ArrayList<String> colorNodes = new ArrayList<String>();
 		for(Object node : nodeList){
 			colorNodes.add(node.toString());
