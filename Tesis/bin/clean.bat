@@ -16,6 +16,10 @@ REM ---------------------------------------------------------
 cd ../
 del classes\* /s /q 
 del lib\Visualizador-Estructuras.jar /s /q
-pause
 
 cd bin
+
+echo "Listo para actualizar el visualizador"
+echo "Ahora ejecute el comando build"
+pause
+

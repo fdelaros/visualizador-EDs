@@ -33,4 +33,6 @@ jar cf ../lib/Visualizador-Estructuras.jar app/*
 
 cd ../bin
 
+echo "Archivo estructura.jar integrado al visualizador exitosamente"
+echo "Ahora ejecute el comando run"
 pause
