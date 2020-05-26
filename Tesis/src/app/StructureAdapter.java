@@ -101,9 +101,6 @@ public class StructureAdapter extends JApplet
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String node = tf1.getText();
-				String search = "Búsqueda de nodo";
-				search = (node.split(",").length > 1) ? search + "s: " : search + ": ";
-				infoPanelContent.setText(search + node);
 				getNodeSet(node);
 			}
 		};
@@ -367,7 +364,7 @@ public class StructureAdapter extends JApplet
 		getContentPane().add(component);
 		resize(DEFAULT_SIZE);
 
-		//jgxAdapter.getStylesheet().getDefaultEdgeStyle().put(mxConstants.STYLE_NOLABEL, "1");
+		jgxAdapter.getStylesheet().getDefaultEdgeStyle().put(mxConstants.STYLE_NOLABEL, "1");
 
 		//Add nodes to the graph
 		for(Nodo actual : nodos) {
@@ -463,18 +460,30 @@ public class StructureAdapter extends JApplet
 	public void getNodeSet(String nodes) {
 		defaultColors();
 		String notFound = "";
+
+		String search = "Búsqueda de nodo";
+		search = (nodes.split(",").length > 1) ? search + "s " + nodes +  " retornó " : search + " " + nodes + " retornó ";
 		String[] nodeSet = nodes.toString().split(",");
 		ArrayList<String> nodeList = new ArrayList<String>();
 
+		String responseFromStructure = "";
 		for(String a : nodeSet) {
 			if(findNode(a) != null) {
 				String result = sm.findNode(a).toString();
+				responseFromStructure += result + ", ";
 				nodeList.add(result);
 			}
 			else {
 				notFound += a + ", " ;
 			}
 		}
+
+		if(!responseFromStructure.isEmpty()) {
+			responseFromStructure = responseFromStructure.substring(0, responseFromStructure.length() - 2);
+			search += ":" + responseFromStructure;
+		}
+		else search += "error";
+		infoPanelContent.setText(search);
 
 		switchNodeColor(nodeList, HIGHLIGHT_COLOR);
 		if(!notFound.isEmpty()) {
@@ -491,8 +500,8 @@ public class StructureAdapter extends JApplet
 		String notFound = "";
 		String[] edgesSet = edges.toString().split(",");
 		String nodeSet = "";
-		String operation = "Búsqueda de arcos: " + edges;
-		infoPanelContent.setText(operation);
+		String operation = "Búsqueda de arcos " + edges + " retornó ";
+		String result = "";
 
 		ArrayList<Edge<Nodo>> edgesList = new ArrayList<Edge<Nodo>>();
 		for (int i = 0; i < edgesSet.length; i++) {
@@ -500,11 +509,12 @@ public class StructureAdapter extends JApplet
 				String[] edgeContent = edgesSet[i].split(">");
 				if(findEdge(edgeContent[0], edgeContent[1]) != null) {
 					Edge searchResult = sm.findEdge(edgeContent[0], edgeContent[1]);
-					if (structureType  == 3 && searchResult == null) {
+					if (structureType  == 3 && searchResult.start == null) {
 						searchResult = sm.findEdge(edgeContent[1], edgeContent[0]);
 					}
 					Edge<Nodo> current = findEdge(searchResult.start.toString(), searchResult.end.toString());
 					edgesList.add(current);
+					result += current.start.name + ">" + current.end.name + ", ";
 					if(structureType == 3) {
 						current = findEdge(searchResult.end.toString(), searchResult.start.toString());
 						edgesList.add(current);
@@ -515,11 +525,18 @@ public class StructureAdapter extends JApplet
 			}
 			else notFound += edgesSet[i] + ", ";
 		}
+
 		if(!nodeSet.isEmpty()) getNodeSet(nodeSet.substring(0, nodeSet.length() - 1));
 		if(!edgesList.isEmpty()) switchEdgeColor(edgesList, EDGES_HIGHLIGHT);
+		if(!result.isEmpty()) {
+			result = result.substring(0, result.length() - 2);
+			operation += ": " + result;
+		}
+		else operation += "vacío";
+		infoPanelContent.setText(operation);
 		if(!notFound.isEmpty()) {
 			String error = "No hubo resultados para arco(s): " + notFound.substring(0, notFound.length() - 2);
-			JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE);  // modificacion
+			JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE);  // modificacion
 		}
 	}
 
@@ -577,6 +594,8 @@ public class StructureAdapter extends JApplet
 				switchNodeColor(startingNodeList, "#F76262");
 			}
 			else {
+				operation = "Vecinos del nodo " + node + " retornó error";
+				infoPanelContent.setText(operation);
 				String notFound = "No hubo resultados para el nodo: " + node;
 				JOptionPane.showMessageDialog(frame, notFound, "Error", JOptionPane.ERROR_MESSAGE);  // modificacion
 			}
@@ -608,7 +627,7 @@ public class StructureAdapter extends JApplet
 	@SuppressWarnings("rawtypes")
 	public void addNodeIn(String node) {
 		defaultColors();
-		String operation = "Agregar nodo: " + node;
+		String operation = "Agregar nodo " + node;
 		if(findNode(node) != null) {
 			operation = " El nodo " + node + " ya está en la estructura";
 			infoPanelContent.setText(operation);
@@ -642,13 +661,14 @@ public class StructureAdapter extends JApplet
 				nodeList.add(findNode(node).name);
 
 				switchNodeColor(nodeList, HIGHLIGHT_COLOR);
+				operation += " completado";
 				infoPanelContent.setText(operation);
 			}
 		catch(Exception e) {
-			operation += " retornó error";
+			operation += " no se completó";
 			infoPanelContent.setText(operation);
 			String notFound = "No se ha agregado el nodo: " + node;
-			JOptionPane.showMessageDialog(frame, notFound, "Error", JOptionPane.ERROR_MESSAGE);  // modificacion
+			JOptionPane.showMessageDialog(frame, notFound, "Advertencia", JOptionPane.INFORMATION_MESSAGE);  // modificacion
 		}
 	}
 
@@ -676,7 +696,7 @@ public class StructureAdapter extends JApplet
 	@SuppressWarnings("rawtypes")
 	public void deleteNode(String node) {
 		defaultColors();
-		String operation = "Eliminar nodo: " + node;
+		String operation = "Eliminar nodo " + node;
 		try{
 			//update node list
 			sm.deleteNode(node);
@@ -700,20 +720,23 @@ public class StructureAdapter extends JApplet
 			}
 
 			if(findNode(node) == null) {
+				operation += " completado";
+				infoPanelContent.setText(operation);
 				String message = "El nodo " + node + " fue eliminado.";
 				JOptionPane.showMessageDialog(frame, message, "Advertencia", JOptionPane.INFORMATION_MESSAGE);
 			}
 			else {
+				operation += " no se completó";
+				infoPanelContent.setText(operation);
 				String message = "El nodo " + node + " no fue eliminado.";
-				JOptionPane.showMessageDialog(frame, message, "Error", JOptionPane.ERROR_MESSAGE); 
+				JOptionPane.showMessageDialog(frame, message, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
 			}
-			infoPanelContent.setText(operation);
 		}
 		catch(Exception e){
-			operation += " retornó error";
+			operation += " no se completó";
 			infoPanelContent.setText(operation);
 			String message = "El nodo " + node + " no se pudo eliminar.";
-			JOptionPane.showMessageDialog(frame, message, "Error", JOptionPane.ERROR_MESSAGE); 
+			JOptionPane.showMessageDialog(frame, message, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
 		}
 	}
 
@@ -764,7 +787,7 @@ public class StructureAdapter extends JApplet
 
 			if(!message.isEmpty()){
 				String error = "Los arcos " + message + " no completan el camino.";
-				JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE); 
+				JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
 			}
 		}
 		catch(Exception e) {
@@ -785,9 +808,8 @@ public class StructureAdapter extends JApplet
 		ArrayList<String> nodesList = new ArrayList<String>();
 
 		String operation = "Agregar arco";
-		operation = (edgesSet.length > 1) ? operation + "s: " : operation + ": ";
+		operation = (edgesSet.length > 1) ? operation + "s " : operation + " ";
 		operation += toAdd;
-		infoPanelContent.setText(operation);
 
 		for(String a : edgesSet) {
 			if(a.contains(">")) {
@@ -817,11 +839,11 @@ public class StructureAdapter extends JApplet
 		edges = (structureType == 1) ? createEdgesForList() : createEdges();
 		addEdgesAndNodes();
 		for(Edge current : edgesList) {
-			if(findEdge(current.start.toString(), current.end.toString()) != null)
-				edgesToColor.add(findEdge(current.start.toString(), current.end.toString()));
 			if(structureType == 3) {
 				edgesToColor.add(findEdge(current.end.toString(), current.start.toString()));
 			}
+			if(findEdge(current.start.toString(), current.end.toString()) != null)
+				edgesToColor.add(findEdge(current.start.toString(), current.end.toString()));
 			else notAdded += current.start.toString() + ">" + current.end.toString();
 		}
 		//If it's a graph, get disconnected nodes and connect them 
@@ -840,51 +862,60 @@ public class StructureAdapter extends JApplet
 
 		switchNodeColor(nodesList, HIGHLIGHT_COLOR);
 		switchEdgeColor(edgesToColor, EDGES_HIGHLIGHT);
-		if(!notAdded.isEmpty()){
+		
+		if(!edgesList.isEmpty()) operation += " completado";
+		else operation += " no se completó";
+		infoPanelContent.setText(operation);
+		
+		if(!notAdded.isEmpty()){	
+			notAdded = notAdded.substring(0, notAdded.length() - 2);
 			String error = "Los arcos " + notAdded + " no se agregaron.";
 			JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
 		}	
+
 	}
 
 	public void showEdges() {
-		String operation = "El conjunto de arcos retornó ";
+		String operation = "El conjunto de arcos retornó: ";
 		ArrayList<Edge<Object>> edgesSet = sm.showEdgesSet();
 		if(edgesSet != null && !edgesSet.isEmpty()) {
 			String formattedEdges = "";
 			for(Edge<Object> edge : edgesSet) {
 				formattedEdges += edge.start.toString() + ">" + edge.end.toString() + ",";
+				operation += edge.start.toString() + ">" + edge.end.toString() + ", ";
 			}
-			formattedEdges = formattedEdges.substring(0, formattedEdges.length() - 1);
-			operation += ": " + formattedEdges;
 			getEdgesSet(formattedEdges);
+			operation = operation.substring(0, operation.length() - 2);
+			infoPanelContent.setText(operation);
 		}
 		else {
 			operation += "vacío";
-			String error = "No hay un conjunto de nodos especificado.";
-			JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE); 
+			infoPanelContent.setText(operation);
+			String error = "No hay un conjunto de arcos especificado.";
+			JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
 		}
-		infoPanelContent.setText(operation);
 	}
 
 	@SuppressWarnings("rawtypes")
 	public void showNodes() {
-		String operation = "El conjunto de nodos retornó ";
+		String operation = "El conjunto de nodos retornó: ";
 		ArrayList inputSet = sm.showNodeSet();
 		if(inputSet != null && !inputSet.isEmpty()) {
 			String nodeTags = "";
 			for (int i = 0; i < inputSet.size() ; i++) {
 				nodeTags += inputSet.get(i).toString() + ",";
+				operation += inputSet.get(i).toString() + ", ";
 			}
-			operation = operation.substring(0, operation.length() - 1);
-			operation += ": " + nodeTags;
+			operation = operation.substring(0, operation.length() - 2);
 			getNodeSet(nodeTags);
+			infoPanelContent.setText(operation);
 		}
 		else {
 			operation += "vacío";
+			infoPanelContent.setText(operation);
 			String error = "No hay un conjunto de nodos especificado.";
-			JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE); 
+			JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
 		}
-		infoPanelContent.setText(operation);
 
 	}
 

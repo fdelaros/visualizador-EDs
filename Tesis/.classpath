@@ -9,6 +9,6 @@
 	<classpathentry kind="lib" path="jar_files/jgrapht-ext-1.1.0.jar"/>
 	<classpathentry kind="lib" path="jar_files/commons-lang3-3.5.jar"/>
 	<classpathentry kind="lib" path="jar_files/antlr4-runtime-4.6.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Digraph"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/LinkedListIncorrect"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
