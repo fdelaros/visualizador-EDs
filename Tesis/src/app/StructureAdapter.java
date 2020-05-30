@@ -505,6 +505,7 @@ public class StructureAdapter extends JApplet
 		ArrayList<String> nodeList = new ArrayList<String>();
 
 		String responseFromStructure = "";
+		try {
 		for(String a : nodeSet) {
 			if(findNode(a) != null) {
 				String result = sm.findNode(a).toString();
@@ -528,6 +529,13 @@ public class StructureAdapter extends JApplet
 			String error = "No hubo resultados para nodo(s): " + notFound.substring(0, notFound.length() - 2);
 			JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE);   // modificacion
 		}
+		}
+		catch(Exception e) {
+			String operation = "La búsqueda de nodos " + nodes + " retornó error";
+			infoPanelContent.setText(operation);
+			String error = "La búsqueda de los nodos " + nodes + " generó un error.";
+			JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE); 
+		}
 	}
 
 
@@ -542,6 +550,7 @@ public class StructureAdapter extends JApplet
 		String result = "";
 
 		ArrayList<Edge<Nodo>> edgesList = new ArrayList<Edge<Nodo>>();
+		try {
 		for (int i = 0; i < edgesSet.length; i++) {
 			if(edgesSet[i].contains(">")) {
 				String[] edgeContent = edgesSet[i].split(">");
@@ -575,6 +584,13 @@ public class StructureAdapter extends JApplet
 		if(!notFound.isEmpty()) {
 			String error = "No hubo resultados para arco(s): " + notFound.substring(0, notFound.length() - 2);
 			JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE);  // modificacion
+		}
+		}
+		catch(Exception e){
+			operation = "La búsqueda de arcos " + edges + " retornó error";
+			infoPanelContent.setText(operation);
+			String error = "La búsqueda de los arcos " + edges + " generó un error.";
+			JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE); 
 		}
 	}
 
