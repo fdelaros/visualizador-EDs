@@ -42,7 +42,7 @@ public class StructureAdapter extends JApplet
 {
 	private static final long serialVersionUID = 2202072534703043194L;
 	private static final Dimension DEFAULT_SIZE = new Dimension(1366, 768);
-	private static JGraphXAdapter<String, DefaultEdge> jgxAdapter;
+
 	//list with the nodes
 	@SuppressWarnings("rawtypes")
 	private static ArrayList<Nodo> nodos;
@@ -55,6 +55,8 @@ public class StructureAdapter extends JApplet
 
 	// create a JGraphT graph
 	private static ListenableGraph<String, DefaultEdge> g = new DefaultListenableGraph<>(new DefaultDirectedGraph<>(DefaultEdge.class));
+	// create a visualization using JGraph, via an adapter
+	private static JGraphXAdapter<String, DefaultEdge> jgxAdapter = new JGraphXAdapter<String, DefaultEdge>(g);
 	@SuppressWarnings({ })
 	private StandardMethods sm = new StandardMethods();
 	private JFrame frame;
@@ -72,19 +74,39 @@ public class StructureAdapter extends JApplet
 	public void init()
 	{
 		StructureAdapter graph = new StructureAdapter();
-		sm.createStructure();
-		graph.createGraph();
 
+		//Main frame
 		frame = new JFrame();
 		frame.getContentPane().setLayout(new BorderLayout());  // modificacion
-		JScrollPane graphContainer = new JScrollPane(graph);
-		frame.getContentPane().add(graphContainer, BorderLayout.CENTER);  // modificacion
 
+		// Options panel
 		JPanel options = new JPanel();
 		options.setPreferredSize(new Dimension(200, getHeight()));
 		options.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 20));
 
+		//Information panel
+		JPanel infoPanel = new JPanel();
+		infoPanel.setLayout(new BorderLayout());
+		infoPanel.setPreferredSize(new Dimension(1366, 60));
+		String tipo = "";
+		if(structureType == 0) tipo = "árbol binario ordenado";
+		else if(structureType == 1) tipo = "lista encadenada";
+		else if(structureType == 2) tipo = "grafo dirigido";
+		else tipo = "grafo no dirigido";
 
+		infoPanelContent = new JTextArea();
+		infoPanelContent.setText("Estructura de datos: " + tipo);
+		infoPanelContent.setEditable(false);
+		infoPanelContent.setLineWrap(true);
+		infoPanelContent.setWrapStyleWord(true);
+		infoPanelContent.setOpaque(false);
+		infoPanel.add(infoPanelContent, BorderLayout.CENTER);
+
+		//Visualization panel
+		graph.createGraph();
+		JScrollPane graphContainer = new JScrollPane(graph);
+		frame.getContentPane().add(graphContainer, BorderLayout.CENTER);  // modificacion
+		
 		// Search for nodes panel
 		JPanel p1 = new JPanel();
 		p1.setLayout(new BoxLayout(p1, BoxLayout.PAGE_AXIS));		
@@ -101,6 +123,8 @@ public class StructureAdapter extends JApplet
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String node = tf1.getText();
+				if(node.isEmpty()) emptyInput("La operación búsqueda de nodo ");
+				else
 				getNodeSet(node);
 			}
 		};
@@ -122,6 +146,8 @@ public class StructureAdapter extends JApplet
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String node = tf2.getText();
+				if(node.isEmpty()) emptyInput("La operación búsqueda de vecinos ");
+				else
 				getNeighbors(node);
 			}
 		};
@@ -143,6 +169,8 @@ public class StructureAdapter extends JApplet
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String nodeTag = tf3.getText();
+				if(nodeTag.isEmpty()) emptyInput("La operación agregar nodos ");
+				else
 				addNodeIn(nodeTag);
 			}
 		};
@@ -164,6 +192,8 @@ public class StructureAdapter extends JApplet
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String nodeTag = tf4.getText();
+				if(nodeTag.isEmpty()) emptyInput("La operación eliminación de nodos ");
+				else
 				deleteNode(nodeTag);
 			}
 		};
@@ -185,6 +215,8 @@ public class StructureAdapter extends JApplet
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String nodeRoute = tf5.getText();
+				if(nodeRoute.isEmpty()) emptyInput("La operación búsqueda de arcos ");
+				else
 				getEdgesSet(nodeRoute);
 			}
 		};
@@ -207,6 +239,8 @@ public class StructureAdapter extends JApplet
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					String edges = tf8.getText();
+					if(edges.isEmpty()) emptyInput("La operación agregar arcos ");
+					else
 					addEdge(edges);
 				}
 			};
@@ -266,28 +300,26 @@ public class StructureAdapter extends JApplet
 		};
 		getPath.addActionListener(drawPath);
 
+		//Restart structure panel
+		JPanel p7 = new JPanel();
+		p7.setLayout(new BoxLayout(p7, BoxLayout.PAGE_AXIS));
+		p7.add(new JLabel("Reiniciar estructura                  "));
+		JButton restartStructure = new JButton("Reiniciar");
+		restartStructure.setAlignmentX(LEFT_ALIGNMENT);
+		p7.add(restartStructure);
+		options.add(p7);
 
-		//Information panel
-		JPanel infoPanel = new JPanel();
-		infoPanel.setLayout(new BorderLayout());
-		infoPanel.setPreferredSize(new Dimension(1366, 60));
-		String tipo = "";
-		if(structureType == 0) tipo = "árbol";
-		else if(structureType == 1) tipo = "lista encadenada";
-		else if(structureType == 2) tipo = "grafo dirigido";
-		else tipo = "grafo no dirigido";
-
-		infoPanelContent = new JTextArea();
-		infoPanelContent.setText("Estructura de datos: " + tipo);
-		infoPanelContent.setEditable(false);
-		infoPanelContent.setLineWrap(true);
-		infoPanelContent.setWrapStyleWord(true);
-		infoPanelContent.setOpaque(false);
-		infoPanel.add(infoPanelContent, BorderLayout.CENTER);
+		ActionListener restart = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				restartStructure();
+			}
+		};
+		restartStructure.addActionListener(restart);
 
 		frame.getContentPane().add(infoPanel, BorderLayout.SOUTH);
 		frame.getContentPane().add(options, BorderLayout.EAST);  // modificacion
-		frame.setTitle("Test Estructuras de Datos");  // modificacion
+		frame.setTitle("Visualizador de Estructuras de Datos");  // modificacion
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  // modificacion
 		frame.pack();  // modificacion
 		frame.setVisible(true);	  // modificacion
@@ -299,6 +331,7 @@ public class StructureAdapter extends JApplet
 		ArrayList<Nodo> inputNodes = new ArrayList<Nodo>();
 
 		ArrayList nodes = sm.getNodeList();
+		if(nodes != null && !nodes.isEmpty())
 		for(Object current : nodes) {
 			Nodo newNode = new Nodo(current.toString());
 			inputNodes.add(newNode);
@@ -350,46 +383,51 @@ public class StructureAdapter extends JApplet
 
 	@SuppressWarnings("rawtypes")
 	public void createGraph() {
+		try {
+			sm.createStructure();
+			nodos = createNodes();
+			edges = structureType == 1 ? createEdgesForList() : createEdges();
 
-		nodos = createNodes();
-		edges = structureType == 1 ? createEdgesForList() : createEdges();
+			setPreferredSize(DEFAULT_SIZE);
+			mxGraphComponent component = new mxGraphComponent(jgxAdapter);
+			component.setConnectable(false);
+			component.getGraph().setAllowDanglingEdges(false);
+			getContentPane().add(component);
+			resize(DEFAULT_SIZE);
 
-		// create a visualization using JGraph, via an adapter
-		jgxAdapter = new JGraphXAdapter<String, DefaultEdge>(g);
+			jgxAdapter.getStylesheet().getDefaultEdgeStyle().put(mxConstants.STYLE_NOLABEL, "1");
 
-		setPreferredSize(DEFAULT_SIZE);
-		mxGraphComponent component = new mxGraphComponent(jgxAdapter);
-		component.setConnectable(false);
-		component.getGraph().setAllowDanglingEdges(false);
-		getContentPane().add(component);
-		resize(DEFAULT_SIZE);
+			//Add nodes to the graph
+			for(Nodo actual : nodos) {
+				g.addVertex(actual.name);
+			}
 
-		jgxAdapter.getStylesheet().getDefaultEdgeStyle().put(mxConstants.STYLE_NOLABEL, "1");
-
-		//Add nodes to the graph
-		for(Nodo actual : nodos) {
-			g.addVertex(actual.name);
+			//Add edges
+			for(Edge<Nodo> actual : edges) {
+				g.addEdge(actual.start.name, actual.end.name);
+			}
+			//If it's a graph, get disconnected nodes and connect them 
+			if(structureType == 2 || structureType == 3) {
+				ArrayList<Edge<Nodo>> disconnected = disconnectedNodes();
+				switchEdgeColor(disconnected, "#EEEEEE");
+			}
+			if(sm.isLineal() == null || !sm.isLineal()) {
+				mxFastOrganicLayout layout = new  mxFastOrganicLayout(jgxAdapter);
+				layout.execute(jgxAdapter.getDefaultParent());
+			}
+			else {
+				mxHierarchicalLayout layout = new mxHierarchicalLayout(jgxAdapter);
+				layout.execute(jgxAdapter.getDefaultParent());
+			}
 		}
-
-		//Add edges
-		for(Edge<Nodo> actual : edges) {
-			g.addEdge(actual.start.name, actual.end.name);
+		catch(Exception e) {
+			String error = "Se presentó un error al crear la estructura.";
+			JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE); 
+			frame.dispose();
 		}
-		//If it's a graph, get disconnected nodes and connect them 
-		if(structureType == 2 || structureType == 3) {
-			ArrayList<Edge<Nodo>> disconnected = disconnectedNodes();
-			switchEdgeColor(disconnected, "#EEEEEE");
-		}
-		if(sm.isLineal() == null || !sm.isLineal()) {
-			mxFastOrganicLayout layout = new  mxFastOrganicLayout(jgxAdapter);
-			layout.execute(jgxAdapter.getDefaultParent());
-		}
-		else {
-			mxHierarchicalLayout layout = new mxHierarchicalLayout(jgxAdapter);
-			layout.execute(jgxAdapter.getDefaultParent());
-		}
-
 	}
+
+
 
 	@SuppressWarnings("rawtypes")
 	public void defaultColors() {
@@ -488,7 +526,7 @@ public class StructureAdapter extends JApplet
 		switchNodeColor(nodeList, HIGHLIGHT_COLOR);
 		if(!notFound.isEmpty()) {
 			String error = "No hubo resultados para nodo(s): " + notFound.substring(0, notFound.length() - 2);
-			JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE);   // modificacion
+			JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE);   // modificacion
 		}
 	}
 
@@ -545,7 +583,7 @@ public class StructureAdapter extends JApplet
 		defaultColors();
 		String operation = "Vecinos del nodo " + node + " retornó: ";
 		try {
-			if(sm.findNode(node) != null) {
+			if(findNode(node) != null){
 				ArrayList<Edge<Nodo>> edgesList = new ArrayList<Edge<Nodo>>();
 				ArrayList<String> nodeNeighbors = new ArrayList<String>();
 				ArrayList<Edge<Object>> neighborsFromStudent = sm.getNeighbors(node);
@@ -594,16 +632,16 @@ public class StructureAdapter extends JApplet
 				switchNodeColor(startingNodeList, "#F76262");
 			}
 			else {
-				operation = "Vecinos del nodo " + node + " retornó error";
+				operation = "Vecinos del nodo " + node + " no se completó";
 				infoPanelContent.setText(operation);
-				String notFound = "No hubo resultados para el nodo: " + node;
-				JOptionPane.showMessageDialog(frame, notFound, "Error", JOptionPane.ERROR_MESSAGE);  // modificacion
+				String notFound = "El nodo " + node + " no está en la estructura";
+				JOptionPane.showMessageDialog(frame, notFound, "Advertencia", JOptionPane.INFORMATION_MESSAGE);  // modificacion
 			}
 		}
 		catch(Exception e) {
 			operation = "Vecinos del nodo " + node + " retornó error";
 			infoPanelContent.setText(operation);
-			String notFound = "No hubo resultados para el nodo: " + node;
+			String notFound = "La búsqueda de vecinos para el nodo " + node + " generó un error.";
 			JOptionPane.showMessageDialog(frame, notFound, "Error", JOptionPane.ERROR_MESSAGE); 
 		}
 
@@ -674,10 +712,12 @@ public class StructureAdapter extends JApplet
 
 	@SuppressWarnings("rawtypes")
 	public void removeEdgesAndNodes() {
-		for(Edge<Nodo> edge: edges)
-			g.removeEdge(edge.start.name, edge.end.name);
-		for(Nodo nodo : nodos)
-			g.removeVertex(nodo.name);
+		if(!edges.isEmpty())
+			for(Edge<Nodo> edge: edges)
+				g.removeEdge(edge.start.name, edge.end.name);
+		if(!nodos.isEmpty())
+			for(Nodo nodo : nodos)
+				g.removeVertex(nodo.name);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -697,41 +737,48 @@ public class StructureAdapter extends JApplet
 	public void deleteNode(String node) {
 		defaultColors();
 		String operation = "Eliminar nodo " + node;
-		try{
-			//update node list
-			sm.deleteNode(node);
-			//Delete and refill current structure
-			removeEdgesAndNodes();
-			nodos = createNodes();
-			edges = createEdges() == null ? createEdgesForList() : createEdges();
-			addEdgesAndNodes();	
-			//If it's a graph, get disconnected nodes and connect them 
-			if(structureType == 2 || structureType == 3) {
-				ArrayList<Edge<Nodo>> disconnected = disconnectedNodes();
-				switchEdgeColor(disconnected, "#EEEEEE");
-			}
-			if(sm.isLineal() == null || !sm.isLineal()) {
-				mxFastOrganicLayout layout = new  mxFastOrganicLayout(jgxAdapter);
-				layout.execute(jgxAdapter.getDefaultParent());
-			}
-			else {
-				mxHierarchicalLayout layout = new mxHierarchicalLayout(jgxAdapter);
-				layout.execute(jgxAdapter.getDefaultParent());
-			}
-
-			if(findNode(node) == null) {
-				operation += " completado";
-				infoPanelContent.setText(operation);
-				String message = "El nodo " + node + " fue eliminado.";
-				JOptionPane.showMessageDialog(frame, message, "Advertencia", JOptionPane.INFORMATION_MESSAGE);
-			}
-			else {
-				operation += " no se completó";
-				infoPanelContent.setText(operation);
-				String message = "El nodo " + node + " no fue eliminado.";
-				JOptionPane.showMessageDialog(frame, message, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
-			}
+		if(findNode(node) == null) {
+			operation += " no se completó";
+			infoPanelContent.setText(operation);
+			String message = "El nodo " + node + " no está en la estructura.";
+			JOptionPane.showMessageDialog(frame, message, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
 		}
+		else
+			try{
+				//update node list
+				sm.deleteNode(node);
+				//Delete and refill current structure
+				removeEdgesAndNodes();
+				nodos = createNodes();
+				edges = createEdges() == null ? createEdgesForList() : createEdges();
+				addEdgesAndNodes();	
+				//If it's a graph, get disconnected nodes and connect them 
+				if(structureType == 2 || structureType == 3) {
+					ArrayList<Edge<Nodo>> disconnected = disconnectedNodes();
+					switchEdgeColor(disconnected, "#EEEEEE");
+				}
+				if(sm.isLineal() == null || !sm.isLineal()) {
+					mxFastOrganicLayout layout = new  mxFastOrganicLayout(jgxAdapter);
+					layout.execute(jgxAdapter.getDefaultParent());
+				}
+				else {
+					mxHierarchicalLayout layout = new mxHierarchicalLayout(jgxAdapter);
+					layout.execute(jgxAdapter.getDefaultParent());
+				}
+
+				if(findNode(node) == null) {
+					operation += " completado";
+					infoPanelContent.setText(operation);
+					String message = "El nodo " + node + " fue eliminado.";
+					JOptionPane.showMessageDialog(frame, message, "Advertencia", JOptionPane.INFORMATION_MESSAGE);
+				}
+				else {
+					operation += " no se completó";
+					infoPanelContent.setText(operation);
+					String message = "El nodo " + node + " no fue eliminado.";
+					JOptionPane.showMessageDialog(frame, message, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
+				}
+			}
 		catch(Exception e){
 			operation += " no se completó";
 			infoPanelContent.setText(operation);
@@ -781,9 +828,14 @@ public class StructureAdapter extends JApplet
 					switchNodeColor(breakingNodes, "#ea6161");
 				if(path.length() > 0) path = path.substring(0,path.length() - 3);
 				path = "El camino retornado es: " + path;
+				infoPanelContent.setText(path);
 			}
-			else path = "El camino está vacío";
-			infoPanelContent.setText(path);
+			else {
+				path = "El camino está vacío";
+				infoPanelContent.setText(path);
+				String error = "No hay un camino especificado.";
+				JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
+			}
 
 			if(!message.isEmpty()){
 				String error = "Los arcos " + message + " no completan el camino.";
@@ -862,11 +914,11 @@ public class StructureAdapter extends JApplet
 
 		switchNodeColor(nodesList, HIGHLIGHT_COLOR);
 		switchEdgeColor(edgesToColor, EDGES_HIGHLIGHT);
-		
+
 		if(!edgesList.isEmpty()) operation += " completado";
 		else operation += " no se completó";
 		infoPanelContent.setText(operation);
-		
+
 		if(!notAdded.isEmpty()){	
 			notAdded = notAdded.substring(0, notAdded.length() - 2);
 			String error = "Los arcos " + notAdded + " no se agregaron.";
@@ -918,7 +970,27 @@ public class StructureAdapter extends JApplet
 		}
 
 	}
+	
+	public void emptyInput(String operation) {
+		infoPanelContent.setText(operation + " no se completó");
+		String error = "La entrada especificada está vacía";
+		JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
+	}
 
+	public void restartStructure() {
+		try {
+			removeEdgesAndNodes();
+			createGraph();
+			String message = "Estructura reinicializada";
+			if(nodos.isEmpty()) message += " vacía";
+			infoPanelContent.setText(message);
+		}
+		catch(Exception e) {
+			infoPanelContent.setText("Reinicializar estructura no se completó");
+			String error = "Se presentó un error al reiniciar la estructura.";
+			JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE); 
+		}
+	}
 
 	public static void main(String[] args) {
 		StructureAdapter sa = new StructureAdapter();
