@@ -57,7 +57,6 @@ public class StructureAdapter extends JApplet
 	private static ListenableGraph<String, DefaultEdge> g = new DefaultListenableGraph<>(new DefaultDirectedGraph<>(DefaultEdge.class));
 	// create a visualization using JGraph, via an adapter
 	private static JGraphXAdapter<String, DefaultEdge> jgxAdapter = new JGraphXAdapter<String, DefaultEdge>(g);
-	@SuppressWarnings({ })
 	private StandardMethods sm = new StandardMethods();
 	private JFrame frame;
 	private JTextArea infoPanelContent;
@@ -81,7 +80,7 @@ public class StructureAdapter extends JApplet
 
 		// Options panel
 		JPanel options = new JPanel();
-		options.setPreferredSize(new Dimension(200, getHeight()));
+		options.setPreferredSize(new Dimension(220, getHeight()));
 		options.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 20));
 
 		//Information panel
@@ -95,7 +94,6 @@ public class StructureAdapter extends JApplet
 		else tipo = "grafo no dirigido";
 
 		infoPanelContent = new JTextArea();
-		infoPanelContent.setText("Estructura de datos: " + tipo);
 		infoPanelContent.setEditable(false);
 		infoPanelContent.setLineWrap(true);
 		infoPanelContent.setWrapStyleWord(true);
@@ -104,14 +102,15 @@ public class StructureAdapter extends JApplet
 
 		//Visualization panel
 		graph.createGraph();
+		initInfoPanel(tipo);
 		JScrollPane graphContainer = new JScrollPane(graph);
 		frame.getContentPane().add(graphContainer, BorderLayout.CENTER);  // modificacion
-		
+
 		// Search for nodes panel
 		JPanel p1 = new JPanel();
 		p1.setLayout(new BoxLayout(p1, BoxLayout.PAGE_AXIS));		
-		p1.add(new JLabel("Buscar nodos"));
-		JTextField tf1 = new JTextField(15);
+		p1.add(new JLabel("Buscar nodos (1 o más)"));
+		JTextField tf1 = new JTextField(5);
 		tf1.setPreferredSize(new Dimension(getWidth(),20));
 		p1.add(tf1);
 		JButton getNodeButton = new JButton("Buscar");
@@ -123,9 +122,12 @@ public class StructureAdapter extends JApplet
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String node = tf1.getText();
+				node = node.replaceAll("\\s+","");
 				if(node.isEmpty()) emptyInput("La operación búsqueda de nodo ");
 				else
-				getNodeSet(node);
+					getNodeSet(node);
+
+				tf1.setText("");
 			}
 		};
 		getNodeButton.addActionListener(searchNode);
@@ -133,8 +135,8 @@ public class StructureAdapter extends JApplet
 		//Search for neighbors panel
 		JPanel p2 = new JPanel();
 		p2.setLayout(new BoxLayout(p2, BoxLayout.PAGE_AXIS));		
-		p2.add(new JLabel("Buscar vecinos"));
-		JTextField tf2 = new JTextField(15);
+		p2.add(new JLabel("Buscar adyacentes"));
+		JTextField tf2 = new JTextField(10);
 		tf2.setPreferredSize(new Dimension(getWidth(),20));
 		p2.add(tf2);
 		JButton getNeighbors = new JButton("Buscar");
@@ -146,9 +148,12 @@ public class StructureAdapter extends JApplet
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String node = tf2.getText();
-				if(node.isEmpty()) emptyInput("La operación búsqueda de vecinos ");
+				node = node.replaceAll("\\s+","");
+				if(node.isEmpty()) emptyInput("La operación búsqueda de adyacentes ");
 				else
-				getNeighbors(node);
+					getNeighbors(node);
+
+				tf2.setText("");
 			}
 		};
 		getNeighbors.addActionListener(searchNeighbors);
@@ -169,9 +174,12 @@ public class StructureAdapter extends JApplet
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String nodeTag = tf3.getText();
+				nodeTag = nodeTag.replaceAll("\\s+","");
 				if(nodeTag.isEmpty()) emptyInput("La operación agregar nodos ");
 				else
-				addNodeIn(nodeTag);
+					addNodeIn(nodeTag);
+
+				tf3.setText("");
 			}
 		};
 		addNode.addActionListener(addNewNode);
@@ -192,18 +200,30 @@ public class StructureAdapter extends JApplet
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String nodeTag = tf4.getText();
+				nodeTag = nodeTag.replaceAll("\\s+","");
 				if(nodeTag.isEmpty()) emptyInput("La operación eliminación de nodos ");
 				else
-				deleteNode(nodeTag);
+					deleteNode(nodeTag);
+
+				tf4.setText("");
 			}
 		};
 		delNode.addActionListener(deleteNodeAL);
 
 		//Search for edges panel
 		JPanel p5 = new JPanel();
-		p5.setLayout(new BoxLayout(p5, BoxLayout.PAGE_AXIS));		
-		p5.add(new JLabel("Buscar arcos"));
-		JTextField tf5 = new JTextField(15);
+		p5.setLayout(new BoxLayout(p5, BoxLayout.PAGE_AXIS));	
+		String p5Text = "";
+		int tfSize = 10;
+		if(structureType == 0 || structureType == 1) {
+			p5Text = "<html>Buscar conexiones <br>(1 o más)</html>";
+		}
+		else {
+			p5Text = "<html>Buscar arcos <br>(1 o más)</html>\"";
+			tfSize = 15;
+		}
+		p5.add(new JLabel(p5Text));
+		JTextField tf5 = new JTextField(tfSize);
 		tf5.setPreferredSize(new Dimension(getWidth(),20));
 		p5.add(tf5);
 		JButton getEdges = new JButton("Buscar");
@@ -215,9 +235,17 @@ public class StructureAdapter extends JApplet
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String nodeRoute = tf5.getText();
-				if(nodeRoute.isEmpty()) emptyInput("La operación búsqueda de arcos ");
+				nodeRoute = nodeRoute.replaceAll("\\s+","");
+				if(nodeRoute.isEmpty()) {
+					if(structureType == 0 || structureType == 1)
+						emptyInput("La operación búsqueda de conexiones ");
+					else
+						emptyInput("La operación búsqueda de arcos ");
+				}
 				else
-				getEdgesSet(nodeRoute);
+					getEdgesSet(nodeRoute);
+
+				tf5.setText("");
 			}
 		};
 		getEdges.addActionListener(searchEdges);
@@ -226,8 +254,8 @@ public class StructureAdapter extends JApplet
 		if(structureType == 2 || structureType == 3) {
 			JPanel p8 = new JPanel();
 			p8.setLayout(new BoxLayout(p8, BoxLayout.PAGE_AXIS));		
-			p8.add(new JLabel("Agregar  arcos"));
-			JTextField tf8 = new JTextField(15);
+			p8.add(new JLabel("Agregar  arcos (1 o más)"));
+			JTextField tf8 = new JTextField(5);
 			tf8.setPreferredSize(new Dimension(getWidth(),20));
 			p8.add(tf8);
 			JButton addEdge = new JButton("Agregar");
@@ -239,9 +267,12 @@ public class StructureAdapter extends JApplet
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					String edges = tf8.getText();
+					edges = edges.replaceAll("\\s+","");
 					if(edges.isEmpty()) emptyInput("La operación agregar arcos ");
 					else
-					addEdge(edges);
+						addEdge(edges);
+
+					tf8.setText("");
 				}
 			};
 			addEdge.addActionListener(addEdgeAction);
@@ -326,16 +357,28 @@ public class StructureAdapter extends JApplet
 
 	}
 
+	public void initInfoPanel(String tipo) {
+		String message = "Estructura de datos: " + tipo;
+		message += "\nCantidad de nodos: " + nodos.size();
+		if(structureType == 0 || structureType == 1) {
+			message += "\nCantidad de conexiones: ";
+		}
+		else
+			message += "\nCantidad de arcos: ";
+		message = structureType == 3 ? message + edges.size()/2 : message + edges.size();
+		infoPanelContent.setText(message);
+	}
+
 	@SuppressWarnings("rawtypes")
 	public ArrayList<Nodo> createNodes() {
 		ArrayList<Nodo> inputNodes = new ArrayList<Nodo>();
 
 		ArrayList nodes = sm.getNodeList();
 		if(nodes != null && !nodes.isEmpty())
-		for(Object current : nodes) {
-			Nodo newNode = new Nodo(current.toString());
-			inputNodes.add(newNode);
-		}
+			for(Object current : nodes) {
+				Nodo newNode = new Nodo(current.toString());
+				inputNodes.add(newNode);
+			}
 
 		return inputNodes;
 	}
@@ -367,7 +410,6 @@ public class StructureAdapter extends JApplet
 		}
 		return inputEdges;
 	}
-
 
 	@SuppressWarnings("rawtypes")
 	public ArrayList<Edge<Nodo>> createEdgesForList(){
@@ -506,29 +548,29 @@ public class StructureAdapter extends JApplet
 
 		String responseFromStructure = "";
 		try {
-		for(String a : nodeSet) {
-			if(findNode(a) != null) {
-				String result = sm.findNode(a).toString();
-				responseFromStructure += result + ", ";
-				nodeList.add(result);
+			for(String a : nodeSet) {
+				if(findNode(a) != null) {
+					String result = sm.findNode(a).toString();
+					responseFromStructure += result + ", ";
+					nodeList.add(result);
+				}
+				else {
+					notFound += a + ", " ;
+				}
 			}
-			else {
-				notFound += a + ", " ;
+
+			if(!responseFromStructure.isEmpty()) {
+				responseFromStructure = responseFromStructure.substring(0, responseFromStructure.length() - 2);
+				search += ":" + responseFromStructure;
 			}
-		}
+			else search += "vacío";
+			infoPanelContent.setText(search);
 
-		if(!responseFromStructure.isEmpty()) {
-			responseFromStructure = responseFromStructure.substring(0, responseFromStructure.length() - 2);
-			search += ":" + responseFromStructure;
-		}
-		else search += "error";
-		infoPanelContent.setText(search);
-
-		switchNodeColor(nodeList, HIGHLIGHT_COLOR);
-		if(!notFound.isEmpty()) {
-			String error = "No hubo resultados para nodo(s): " + notFound.substring(0, notFound.length() - 2);
-			JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE);   // modificacion
-		}
+			switchNodeColor(nodeList, HIGHLIGHT_COLOR);
+			if(!notFound.isEmpty()) {
+				String error = "No hubo resultados para nodo(s): " + notFound.substring(0, notFound.length() - 2);
+				JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE);   // modificacion
+			}
 		}
 		catch(Exception e) {
 			String operation = "La búsqueda de nodos " + nodes + " retornó error";
@@ -546,50 +588,58 @@ public class StructureAdapter extends JApplet
 		String notFound = "";
 		String[] edgesSet = edges.toString().split(",");
 		String nodeSet = "";
-		String operation = "Búsqueda de arcos " + edges + " retornó ";
+		String operation = (structureType == 0 || structureType == 1) ? "La búsqueda de conexiones " : "La búsqueda de arcos ";
+		operation += edges + " retornó ";
 		String result = "";
 
 		ArrayList<Edge<Nodo>> edgesList = new ArrayList<Edge<Nodo>>();
 		try {
-		for (int i = 0; i < edgesSet.length; i++) {
-			if(edgesSet[i].contains(">")) {
-				String[] edgeContent = edgesSet[i].split(">");
-				if(findEdge(edgeContent[0], edgeContent[1]) != null) {
-					Edge searchResult = sm.findEdge(edgeContent[0], edgeContent[1]);
-					if (structureType  == 3 && searchResult.start == null) {
-						searchResult = sm.findEdge(edgeContent[1], edgeContent[0]);
-					}
-					Edge<Nodo> current = findEdge(searchResult.start.toString(), searchResult.end.toString());
-					edgesList.add(current);
-					result += current.start.name + ">" + current.end.name + ", ";
-					if(structureType == 3) {
-						current = findEdge(searchResult.end.toString(), searchResult.start.toString());
-						edgesList.add(current);
-					}
-					nodeSet += edgeContent[0] + "," + edgeContent[1] + ",";
-				}
-				else notFound += edgeContent[0] + ">" + edgeContent[1] + ", ";
-			}
-			else notFound += edgesSet[i] + ", ";
-		}
+			Edge searchResult = null;
+			Edge<Nodo> current = null;
+			for (int i = 0; i < edgesSet.length; i++) {
+				if(edgesSet[i].contains(">")) {
+					String[] edgeContent = edgesSet[i].split(">");
+					if(findEdge(edgeContent[0], edgeContent[1]) != null) {
+						if(structureType == 3) {
+							if(sm.findEdge(edgeContent[0], edgeContent[1]) != null)
+								searchResult = sm.findEdge(edgeContent[0], edgeContent[1]);
+							else if(sm.findEdge(edgeContent[1], edgeContent[0]) != null)
+								searchResult = sm.findEdge(edgeContent[1], edgeContent[0]);
 
-		if(!nodeSet.isEmpty()) getNodeSet(nodeSet.substring(0, nodeSet.length() - 1));
-		if(!edgesList.isEmpty()) switchEdgeColor(edgesList, EDGES_HIGHLIGHT);
-		if(!result.isEmpty()) {
-			result = result.substring(0, result.length() - 2);
-			operation += ": " + result;
-		}
-		else operation += "vacío";
-		infoPanelContent.setText(operation);
-		if(!notFound.isEmpty()) {
-			String error = "No hubo resultados para arco(s): " + notFound.substring(0, notFound.length() - 2);
-			JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE);  // modificacion
-		}
+							edgesList.add(findEdge(searchResult.end.toString(), searchResult.start.toString()));
+						}
+						else searchResult = sm.findEdge(edgeContent[0], edgeContent[1]);
+						current = findEdge(searchResult.start.toString(), searchResult.end.toString());
+						edgesList.add(current);
+						result += current.start.name + ">" + current.end.name + ", ";
+						nodeSet += edgeContent[0] + "," + edgeContent[1] + ",";
+					}
+					else notFound += edgeContent[0] + ">" + edgeContent[1] + ", ";
+				}
+				else notFound += edgesSet[i] + ", ";
+			}
+
+			if(!nodeSet.isEmpty()) getNodeSet(nodeSet.substring(0, nodeSet.length() - 1));
+			if(!edgesList.isEmpty()) switchEdgeColor(edgesList, EDGES_HIGHLIGHT);
+			if(!result.isEmpty()) {
+				result = result.substring(0, result.length() - 2);
+				operation += ": " + result;
+			}
+			else operation += "vacío";
+			infoPanelContent.setText(operation);
+			if(!notFound.isEmpty()) {
+				String error = "No hubo resultados para ";
+				error += (structureType == 0 || structureType == 1) ? "las conexiones: " : "los arcos: ";
+				error += notFound.substring(0, notFound.length() - 2);
+				JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE);  // modificacion
+			}
 		}
 		catch(Exception e){
-			operation = "La búsqueda de arcos " + edges + " retornó error";
+			operation = (structureType == 0 || structureType == 1) ? "La búsqueda de las conexiones " : "La búsqueda de los arcos ";
+			operation += edges + " retornó error";
 			infoPanelContent.setText(operation);
-			String error = "La búsqueda de los arcos " + edges + " generó un error.";
+			String error = (structureType == 0 || structureType == 1) ? "La búsqueda de las conexiones " : "La búsqueda de los arcos ";
+			error += edges + " generó un error.";
 			JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE); 
 		}
 	}
@@ -597,7 +647,7 @@ public class StructureAdapter extends JApplet
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void getNeighbors(String node) {
 		defaultColors();
-		String operation = "Vecinos del nodo " + node + " retornó: ";
+		String operation = "Adyacentes del nodo " + node + " retornó: ";
 		try {
 			if(findNode(node) != null){
 				ArrayList<Edge<Nodo>> edgesList = new ArrayList<Edge<Nodo>>();
@@ -637,7 +687,7 @@ public class StructureAdapter extends JApplet
 						operation = operation.substring(0, operation.length() - 2);
 					}
 				}
-				else operation = "Vecinos del nodo " + node + " retornó vacío";
+				else operation = "Adyacentes del nodo " + node + " retornó vacío";
 				infoPanelContent.setText(operation);
 
 				switchEdgeColor(edgesList, EDGES_HIGHLIGHT);
@@ -648,16 +698,16 @@ public class StructureAdapter extends JApplet
 				switchNodeColor(startingNodeList, "#F76262");
 			}
 			else {
-				operation = "Vecinos del nodo " + node + " no se completó";
+				operation = "Adyacentes del nodo " + node + " no se completó";
 				infoPanelContent.setText(operation);
 				String notFound = "El nodo " + node + " no está en la estructura";
 				JOptionPane.showMessageDialog(frame, notFound, "Advertencia", JOptionPane.INFORMATION_MESSAGE);  // modificacion
 			}
 		}
 		catch(Exception e) {
-			operation = "Vecinos del nodo " + node + " retornó error";
+			operation = "Adyacentes del nodo " + node + " retornó error";
 			infoPanelContent.setText(operation);
-			String notFound = "La búsqueda de vecinos para el nodo " + node + " generó un error.";
+			String notFound = "La búsqueda de adyacentes para el nodo " + node + " generó un error.";
 			JOptionPane.showMessageDialog(frame, notFound, "Error", JOptionPane.ERROR_MESSAGE); 
 		}
 
@@ -716,6 +766,13 @@ public class StructureAdapter extends JApplet
 
 				switchNodeColor(nodeList, HIGHLIGHT_COLOR);
 				operation += " completado";
+				operation += "\nCantidad de nodos: " + nodos.size();
+				if(structureType == 0 || structureType == 1) {
+					operation += "\nCantidad de conexiones: ";
+				}
+				else
+					operation += "\nCantidad de arcos: ";
+				operation = structureType == 3 ? operation + edges.size()/2 : operation + edges.size();
 				infoPanelContent.setText(operation);
 			}
 		catch(Exception e) {
@@ -784,12 +841,26 @@ public class StructureAdapter extends JApplet
 
 				if(findNode(node) == null) {
 					operation += " completado";
+					operation += "\nCantidad de nodos: " + nodos.size();
+					if(structureType == 0 || structureType == 1) {
+						operation += "\nCantidad de conexiones: ";
+					}
+					else
+						operation += "\nCantidad de arcos: ";
+					operation = structureType == 3 ? operation + edges.size()/2 : operation + edges.size();
 					infoPanelContent.setText(operation);
 					String message = "El nodo " + node + " fue eliminado.";
 					JOptionPane.showMessageDialog(frame, message, "Advertencia", JOptionPane.INFORMATION_MESSAGE);
 				}
 				else {
 					operation += " no se completó";
+					operation += "\nCantidad de nodos: " + nodos.size();
+					if(structureType == 0 || structureType == 1) {
+						operation += "\nCantidad de conexiones: ";
+					}
+					else
+						operation += "\nCantidad de arcos: ";
+					operation = structureType == 3 ? operation + edges.size()/2 : operation + edges.size();
 					infoPanelContent.setText(operation);
 					String message = "El nodo " + node + " no fue eliminado.";
 					JOptionPane.showMessageDialog(frame, message, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
@@ -797,6 +868,9 @@ public class StructureAdapter extends JApplet
 			}
 		catch(Exception e){
 			operation += " no se completó";
+			operation += "\nCantidad de nodos: " + nodos.size();
+			operation += "\nCantidad de arcos: ";
+			operation = structureType == 3 ? operation + edges.size()/2 : operation + edges.size();
 			infoPanelContent.setText(operation);
 			String message = "El nodo " + node + " no se pudo eliminar.";
 			JOptionPane.showMessageDialog(frame, message, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
@@ -811,6 +885,7 @@ public class StructureAdapter extends JApplet
 		String path = "";
 		ArrayList<Edge<Nodo>> edgesInPath = new ArrayList<Edge<Nodo>>();
 		ArrayList nodeList = sm.getPath();
+		for(Object a : nodeList) System.out.println(a.toString());
 		try {
 			if(nodeList != null && nodeList.size() > 1) {
 				ArrayList<String> breakingNodes = new ArrayList<String>();
@@ -854,7 +929,9 @@ public class StructureAdapter extends JApplet
 			}
 
 			if(!message.isEmpty()){
-				String error = "Los arcos " + message + " no completan el camino.";
+				String error = "";
+				error = (structureType == 0 || structureType == 1) ? "Las conexiones" : "Los arcos";
+				error += message + " no completan el camino.";
 				JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
 			}
 		}
@@ -933,6 +1010,9 @@ public class StructureAdapter extends JApplet
 
 		if(!edgesList.isEmpty()) operation += " completado";
 		else operation += " no se completó";
+		operation += "\nCantidad de nodos: " + nodos.size();
+		operation += "\nCantidad de arcos: ";
+		operation = structureType == 3 ? operation + edges.size()/2 : operation + edges.size();
 		infoPanelContent.setText(operation);
 
 		if(!notAdded.isEmpty()){	
@@ -986,7 +1066,7 @@ public class StructureAdapter extends JApplet
 		}
 
 	}
-	
+
 	public void emptyInput(String operation) {
 		infoPanelContent.setText(operation + " no se completó");
 		String error = "La entrada especificada está vacía";
@@ -999,6 +1079,15 @@ public class StructureAdapter extends JApplet
 			createGraph();
 			String message = "Estructura reinicializada";
 			if(nodos.isEmpty()) message += " vacía";
+			else {
+				message += "\nCantidad de nodos: " + nodos.size();
+				if(structureType == 0 || structureType == 1) {
+					message += "\nCantidad de conexiones: ";
+				}
+				else
+					message += "\nCantidad de arcos: ";
+				message = structureType == 3 ? message + edges.size()/2 : message + edges.size();
+			}
 			infoPanelContent.setText(message);
 		}
 		catch(Exception e) {
