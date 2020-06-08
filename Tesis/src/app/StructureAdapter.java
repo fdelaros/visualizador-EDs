@@ -62,14 +62,7 @@ public class StructureAdapter extends JApplet
 	private JTextArea infoPanelContent;
 	private int structureType = sm.structureType();
 
-	/**
-	 * An alternative starting point for this demo, to also allow running this applet as an
-	 * application.
-	 *
-	 * @param args command line arguments
-	 */
 
-	//	@Override
 	public void init()
 	{
 		StructureAdapter graph = new StructureAdapter();
@@ -357,6 +350,10 @@ public class StructureAdapter extends JApplet
 
 	}
 
+	/**
+	 * Init information panel with the corresponding data
+	 * @param tipo Type of the data structure
+	 */
 	public void initInfoPanel(String tipo) {
 		String message = "Estructura de datos: " + tipo;
 		message += "\nCantidad de nodos: " + nodos.size();
@@ -369,6 +366,10 @@ public class StructureAdapter extends JApplet
 		infoPanelContent.setText(message);
 	}
 
+	/**
+	 * Gets the nodes for creating the structure
+	 * @return list with the nodes fetched from the StandardMethods class, and parsed to the Nodo class
+	 */
 	@SuppressWarnings("rawtypes")
 	public ArrayList<Nodo> createNodes() {
 		ArrayList<Nodo> inputNodes = new ArrayList<Nodo>();
@@ -383,6 +384,11 @@ public class StructureAdapter extends JApplet
 		return inputNodes;
 	}
 
+	/**
+	 * Find a node in the nodes list
+	 * @param name Tag associated to the node to be found
+	 * @return node resulting from the search
+	 */
 	@SuppressWarnings("rawtypes")
 	public Nodo findNode(String name) {
 		Nodo nodo = null;
@@ -395,6 +401,10 @@ public class StructureAdapter extends JApplet
 		return null;
 	}
 
+	/**
+	 * Gets the edges for creating the structure
+	 * @return list with the edges/connections fetched from the StandardMethods class, and parsed to Edge<Nodo>
+	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public ArrayList<Edge<Nodo>> createEdges(){
 		ArrayList<Edge<Nodo>> inputEdges = new ArrayList<Edge<Nodo>>();
@@ -411,6 +421,10 @@ public class StructureAdapter extends JApplet
 		return inputEdges;
 	}
 
+	/**
+	 * create the edges for a list, they are created in order according to the node list
+	 * @return list with the edges/connections fetched from the StandardMethods class, and parsed to Edge<Nodo>
+	 */
 	@SuppressWarnings("rawtypes")
 	public ArrayList<Edge<Nodo>> createEdgesForList(){
 		ArrayList<Edge<Nodo>> inputEdges = new ArrayList<Edge<Nodo>>();
@@ -423,6 +437,9 @@ public class StructureAdapter extends JApplet
 		return inputEdges;
 	}
 
+	/**
+	 * Creates the visualization of the structure
+	 */
 	@SuppressWarnings("rawtypes")
 	public void createGraph() {
 		try {
@@ -469,13 +486,14 @@ public class StructureAdapter extends JApplet
 		}
 	}
 
-
-
+	/**
+	 * Resets the colors of the structure to the default ones for cleaning the visual result of previous operations
+	 */
 	@SuppressWarnings("rawtypes")
 	public void defaultColors() {
 		removeEdgesAndNodes();
 		addEdgesAndNodes();
-		//If it's a graph, get disconnected nodes and connect them 
+		//If it's a graph, get the disconnected nodes and connect them with and invisible edge
 		if(structureType == 2 || structureType == 3) {
 			ArrayList<Edge<Nodo>> disconnected = disconnectedNodes();
 			switchEdgeColor(disconnected, "#EEEEEE");
@@ -491,6 +509,10 @@ public class StructureAdapter extends JApplet
 
 	}
 
+	/**
+	 * Gets the disconnected nodes in the graph so they can be linked with an invisible edge, and avoiding that they appear stacked on the left corner
+	 * @return list with the edges that connect the nodes that don't have any edges from the structure provided by the student
+	 */
 	@SuppressWarnings("rawtypes")
 	public ArrayList<Edge<Nodo>> disconnectedNodes() {
 		ArrayList<Nodo> nodesWithEdges = new ArrayList<Nodo>();
@@ -515,6 +537,11 @@ public class StructureAdapter extends JApplet
 		return disconnectedEdges;
 	}
 
+	/**
+	 * Changes the color of the specifies nodes
+	 * @param nodeList List with the nodes to be changed
+	 * @param color Color of the nodes 
+	 */
 	public void switchNodeColor(ArrayList<String> nodeList, String color) {
 		HashMap<String,com.mxgraph.model.mxICell> vertexToCellMap = jgxAdapter.getVertexToCellMap();
 		//Create array with the cells of the selected nodes
@@ -527,6 +554,11 @@ public class StructureAdapter extends JApplet
 
 	}
 
+	/**
+	 * Changes the color of the specifies edges
+	 * @param edgesList List with the edges to be changed
+	 * @param color Color of the edges
+	 */
 	@SuppressWarnings("rawtypes")
 	public void switchEdgeColor(ArrayList<Edge<Nodo>> edgesList, String color) {
 		HashMap<DefaultEdge,com.mxgraph.model.mxICell> edgeToCellMap = jgxAdapter.getEdgeToCellMap();
@@ -537,6 +569,10 @@ public class StructureAdapter extends JApplet
 		jgxAdapter.setCellStyle("strokeColor=" + color, edgeCellArray);
 	}
 
+	/**
+	 * Highlights the nodes specified as input 
+	 * @param nodes Node(s) to be found and fetched from the StandardMethods class
+	 */
 	public void getNodeSet(String nodes) {
 		defaultColors();
 		String notFound = "";
@@ -580,7 +616,10 @@ public class StructureAdapter extends JApplet
 		}
 	}
 
-
+	/**
+	 * Highlights the edges specified as input
+	 * @param edges Edge(s) to be found and fetched from the StandardMethods class
+	 */
 	@SuppressWarnings("rawtypes")
 	public void getEdgesSet(String edges) {
 		defaultColors();
@@ -644,6 +683,11 @@ public class StructureAdapter extends JApplet
 		}
 	}
 
+
+	/**
+	 * Highlights the main node and the neighbors
+	 * @param node Tag that corresponds to the node which neighbors are to be found and fetched from the StandardMethods class
+	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void getNeighbors(String node) {
 		defaultColors();
@@ -713,7 +757,13 @@ public class StructureAdapter extends JApplet
 
 	}
 
-
+	
+	/**
+	 * find an edge in the edges list
+	 * @param nodeStart Tag associated to the starting node in the edge
+	 * @param nodeEnd Tag associated to the ending node in the edge
+	 * @return edge resulting from the search
+	 */
 	@SuppressWarnings({ "rawtypes" })
 	public Edge<Nodo> findEdge(String nodeStart, String nodeEnd) {
 		Nodo start = findNode(nodeStart);
@@ -884,9 +934,8 @@ public class StructureAdapter extends JApplet
 		String message = "";
 		String path = "";
 		ArrayList<Edge<Nodo>> edgesInPath = new ArrayList<Edge<Nodo>>();
-		ArrayList nodeList = sm.getPath();
-		for(Object a : nodeList) System.out.println(a.toString());
 		try {
+			ArrayList nodeList = sm.getPath();
 			if(nodeList != null && nodeList.size() > 1) {
 				ArrayList<String> breakingNodes = new ArrayList<String>();
 				for (int i = 0; i < nodeList.size()-1; i++) {

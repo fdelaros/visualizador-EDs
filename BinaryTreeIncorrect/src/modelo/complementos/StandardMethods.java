@@ -37,7 +37,7 @@ public class StandardMethods implements IStandardMethods<Object> {
 
 	@Override
 	public ArrayList<Edge<Object>> getNeighbors(String idVertex) {
-		return bt.getNeighbors(Integer.parseInt(idVertex));
+		return bt.getNeighbors(idVertex);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -52,12 +52,12 @@ public class StandardMethods implements IStandardMethods<Object> {
 
 	@Override
 	public void addNode(String tag) {
-		bt.insertRoot((Integer.parseInt(tag)));	
+		bt.insertRoot(tag);	
 	}
 
 	@Override
 	public void deleteNode(String tag) {
-		bt.deleteNode(Integer.parseInt(tag));
+		bt.deleteNode(tag);
 	}
 
 	@SuppressWarnings("unchecked")

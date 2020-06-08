@@ -12,27 +12,27 @@ public class BinaryTree
 	int size;
 
 	NodoArbol aux = null;
-
+	
 	class NodoArbol
 	{
 		//miembros de acceso
 		NodoArbol nodoizquierdo;
-		int datos;
+		String datos;
 		NodoArbol nododerecho;
 		ArrayList<NodoArbol> subarbol;
 
 		//iniciar dato y hacer de este nodo un nodo hoja
-		public NodoArbol(int datosNodo)
+		public NodoArbol(String datosNodo)
 		{
 			datos = datosNodo;
 			nodoizquierdo = nododerecho = null; //el nodo no tiene hijos
 		}
 
 		//buscar punto de insercion e inserter nodo nuevo
-		public NodoArbol insertar(int valorInsertar){
+		public NodoArbol insertar(String valorInsertar){
 
 			//insertar en subarbol izquierdo
-			if(valorInsertar < datos) {
+			if(valorInsertar.compareTo(datos) < 0) {
 				//insertar en subarbol izquierdo
 				if(nodoizquierdo == null) {
 					nodoizquierdo = new NodoArbol(valorInsertar);
@@ -43,7 +43,7 @@ public class BinaryTree
 			}
 
 			//insertar nodo derecho
-			else if(valorInsertar > datos) {
+			else if(valorInsertar.compareTo(datos) > 0) {
 				//insertar nuevo nodoArbol
 				if(nododerecho == null) {
 					nododerecho = new NodoArbol(valorInsertar);
@@ -58,11 +58,11 @@ public class BinaryTree
 		} 
 
 		public String toString() {
-			return Integer.toString(datos);
+			return datos;
 		}
 
-		public NodoArbol deleteNode(int tag) {
-			if(datos == tag) {
+		public NodoArbol deleteNode(String tag) {
+			if(datos.equals(tag)) {
 				if(nodoizquierdo == null && nododerecho == null) {
 					return null;
 				}
@@ -77,10 +77,13 @@ public class BinaryTree
 					nododerecho = nododerecho.deleteNode(reemplazo.datos);
 					reemplazo.nodoizquierdo = nodoizquierdo;
 					reemplazo.nododerecho = nododerecho;
+					if(this == raiz) {
+						raiz = reemplazo;
+					}
 					return reemplazo;
 				}
 			}
-			else if(datos > tag) {
+			else if(datos.compareTo(tag) > 0) {
 				nodoizquierdo = nodoizquierdo.deleteNode(tag);
 				return this;
 			}
@@ -96,7 +99,7 @@ public class BinaryTree
 			recorrerSubarbol(nodo);
 			NodoArbol menor = nodo;
 			for(NodoArbol current : subarbol) {
-				if(current.datos < menor.datos) menor = current;
+				if(current.datos.compareTo(menor.datos) < 1) menor = current;
 			}
 			return menor;
 		}
@@ -126,7 +129,7 @@ public class BinaryTree
 	}
 
 	//insertar un nuevo ndo en el arbol de busqueda binaria
-	public void insertarNodo(int valorInsertar)
+	public void insertarNodo(String valorInsertar)
 	{
 		if(raiz == null) {
 			raiz = new NodoArbol(valorInsertar);
@@ -193,11 +196,14 @@ public class BinaryTree
 	public void fillTree() {
 		if(size > 0) {
 			int rootNode = (int) Math.floor(Math.random()*size);
-			insertarNodo(rootNode);
+			String root = "nodo" + rootNode;
+			insertarNodo(root);
+			String add = "";
 			for (int i = 0; i < size; i++) {
 				int nodoAct = (int) Math.floor(Math.random()*size);
-				if(nodoAct != rootNode) 
-					insertarNodo(nodoAct);
+				add = "nodo" + nodoAct;
+				if(!add.equals(root) && !inStructure(add)) 
+					insertarNodo(add);
 			}
 		}
 	}
@@ -223,8 +229,7 @@ public class BinaryTree
 	public NodoArbol getNode(String id) {
 		NodoArbol ret = null;
 		for(NodoArbol a : vertices) {
-			//ret = (a.datos == Integer.parseInt(id)) ? a : null ;
-			if(a.datos == Integer.parseInt(id)) {
+			if(a.datos.equals(id)) {
 				ret = a;
 				break;
 			}
@@ -232,9 +237,9 @@ public class BinaryTree
 		return ret;
 	}
 
-	public boolean inStructure(int tag) {
+	public boolean inStructure(String tag) {
 		for (int i = 0; i < vertices.size(); i++) {
-			if(vertices.get(i).datos == tag)
+			if(vertices.get(i).datos.equals(tag))
 				return true;
 		}
 		return false;
@@ -261,7 +266,7 @@ public class BinaryTree
 	}
 
 	public void deleteNode(String tag) {
-		raiz.deleteNode(Integer.parseInt(tag));
+		raiz.deleteNode(tag);
 		vertices.remove(getNode(tag));
 		parseEdges();
 	}
@@ -277,10 +282,10 @@ public class BinaryTree
 		return result;
 	}
 
-	public ArrayList<Edge<Object>> getNeighbors(int tag){
+	public ArrayList<Edge<Object>> getNeighbors(String tag){
 		ArrayList<Edge<Object>> neighbors = new ArrayList<Edge<Object>>();
 		for(Edge<Object> edge : arcos) {
-			if(edge.start.toString().equals(Integer.toString(tag))) {
+			if(edge.start.toString().equals(tag)) {
 				neighbors.add(edge);
 			}
 		}
@@ -305,14 +310,15 @@ public class BinaryTree
 
 
 	public static void main(String[] args) {
-		BinaryTree bst = new BinaryTree(0);
+		BinaryTree bst = new BinaryTree(10);
 		bst.fillTree();
 		bst.parseEdges();
 		System.out.println("\n");
 		ArrayList<NodoArbol> vert = bst.vertices;
 		for(NodoArbol n : vert) System.out.println(n.datos);
+		System.out.println(bst.raiz.datos);
+		bst.deleteNode(bst.raiz.datos);
+		System.out.println(bst.raiz.datos);
 	}
 
-
 }
-

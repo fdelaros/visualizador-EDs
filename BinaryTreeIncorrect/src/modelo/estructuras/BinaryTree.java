@@ -17,21 +17,21 @@ public class BinaryTree
 	{
 		//miembros de acceso
 		NodoArbol nodoizquierdo;
-		int datos;
+		String datos;
 		NodoArbol nododerecho;
 
 		//iniciar dato y hacer de este nodo un nodo hoja
-		public NodoArbol(int datosNodo)
+		public NodoArbol(String datosNodo)
 		{
 			datos = datosNodo;
 			nodoizquierdo = nododerecho = null; //el nodo no tiene hijos
 		}
 
 		//buscar punto de insercion e inserter nodo nuevo
-		public NodoArbol insertar(int valorInsertar){
+		public NodoArbol insertar(String valorInsertar){
 
 			//insertar en subarbol izquierdo
-			if(valorInsertar < datos) {
+			if(valorInsertar.compareTo(datos) < 0) {
 				//insertar en subarbol izquierdo
 				if(nodoizquierdo == null) {
 					nodoizquierdo = new NodoArbol(valorInsertar);
@@ -42,7 +42,7 @@ public class BinaryTree
 			}
 
 			//insertar nodo derecho
-			else if(valorInsertar > datos) {
+			else if(valorInsertar.compareTo(datos) > 0) {
 				//insertar nuevo nodoArbol
 				if(nododerecho == null) {
 					nododerecho = new NodoArbol(valorInsertar);
@@ -57,7 +57,7 @@ public class BinaryTree
 		} 
 
 		public String toString() {
-			return Integer.toString(datos);
+			return datos;
 		}
 
 		public NodoArbol deleteNode() {
@@ -108,7 +108,7 @@ public class BinaryTree
 	}
 
 	//insertar un nuevo ndo en el arbol de busqueda binaria
-	public void insertarNodo(int valorInsertar)
+	public void insertarNodo(String valorInsertar)
 	{
 		if(raiz == null) {
 			raiz = new NodoArbol(valorInsertar);
@@ -172,14 +172,16 @@ public class BinaryTree
 	}
 
 	public void fillTree() {
-
 		if(size > 0) {
 			int rootNode = (int) Math.floor(Math.random()*size);
-			insertarNodo(rootNode);
+			String root = "nodo" + rootNode;
+			insertarNodo(root);
+			String add = "";
 			for (int i = 0; i < size; i++) {
 				int nodoAct = (int) Math.floor(Math.random()*size);
-				if(nodoAct != rootNode) 
-					insertarNodo(nodoAct);
+				add = "nodo" + nodoAct;
+				if(!add.equals(root) && !inStructure(add)) 
+					insertarNodo(add);
 			}
 		}
 	}
@@ -209,6 +211,14 @@ public class BinaryTree
 			if(i % 5 == 0) nodeSet.add(nodesInStructure.get(i));				
 		}
 		return nodeSet;
+	}
+	
+	public boolean inStructure(String tag) {
+		for (int i = 0; i < vertices.size(); i++) {
+			if(vertices.get(i).datos.equals(tag))
+				return true;
+		}
+		return false;
 	}
 
 	public NodoArbol getNode(String id) {
@@ -241,8 +251,8 @@ public class BinaryTree
 		return arcos;
 	}
 
-	public void deleteNode(int deleteTag) {
-		NodoArbol nodo = getNode(Integer.toString(deleteTag));
+	public void deleteNode(String deleteTag) {
+		NodoArbol nodo = getNode(deleteTag);
 		nodo.deleteNode();
 	}
 
@@ -257,10 +267,10 @@ public class BinaryTree
 		return camino;
 	}
 
-	public ArrayList<Edge<Object>> getNeighbors(int tag){
+	public ArrayList<Edge<Object>> getNeighbors(String tag){
 		ArrayList<Edge<Object>> neighbors = new ArrayList<Edge<Object>>();
 		for(Edge<Object> edge : arcos) {
-			if(edge.start.toString().equals(Integer.toString(tag)) || edge.end.toString().equals(Integer.toString(tag))) {
+			if(edge.start.toString().equals(tag) || edge.end.toString().equals(tag)) {
 				neighbors.add(edge);
 			}
 		}
@@ -278,7 +288,7 @@ public class BinaryTree
 		return result;
 	}
 
-	public void insertRoot(int num) {
+	public void insertRoot(String num) {
 		NodoArbol nuevo = new NodoArbol(num);
 		if(raiz.nododerecho != null) nuevo.nododerecho = raiz.nododerecho;
 		if(raiz.nodoizquierdo != null) nuevo.nodoizquierdo = raiz.nodoizquierdo;
@@ -290,6 +300,8 @@ public class BinaryTree
 	public static void main(String[] args) {
 		BinaryTree bst = new BinaryTree(20);
 		bst.fillTree();
+		ArrayList<NodoArbol> vert = bst.vertices;
+		for(NodoArbol n : vert) System.out.println(n.datos);
 	}
 
 
