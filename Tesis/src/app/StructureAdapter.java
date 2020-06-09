@@ -762,7 +762,7 @@ public class StructureAdapter extends JApplet
 	 * find an edge in the edges list
 	 * @param nodeStart Tag associated to the starting node in the edge
 	 * @param nodeEnd Tag associated to the ending node in the edge
-	 * @return edge resulting from the search
+	 * @return edge resulting from the search in the StandardMethods class
 	 */
 	@SuppressWarnings({ "rawtypes" })
 	public Edge<Nodo> findEdge(String nodeStart, String nodeEnd) {
@@ -778,6 +778,11 @@ public class StructureAdapter extends JApplet
 		return null;
 	}
 
+	
+	/**
+	 * Add a node to the structure
+	 * @param node Tag associated to the node that will be created through the StandardMethods class
+	 */
 	@SuppressWarnings("rawtypes")
 	public void addNodeIn(String node) {
 		defaultColors();
@@ -833,6 +838,10 @@ public class StructureAdapter extends JApplet
 		}
 	}
 
+	
+	/**
+	 * Clears the visualization by removing all the edges and nodes associated
+	 */
 	@SuppressWarnings("rawtypes")
 	public void removeEdgesAndNodes() {
 		if(!edges.isEmpty())
@@ -843,6 +852,10 @@ public class StructureAdapter extends JApplet
 				g.removeVertex(nodo.name);
 	}
 
+	
+	/**
+	 * Adds the nodes and edges in the lists to the structure
+	 */
 	@SuppressWarnings("rawtypes")
 	public void addEdgesAndNodes() {
 		//Add nodes to the graph
@@ -856,6 +869,11 @@ public class StructureAdapter extends JApplet
 		}
 	}
 
+	
+	/**
+	 * Delete the node specified
+	 * @param node String associated to the node that's going to be deleted from the structure through the StandardMethods class
+	 */
 	@SuppressWarnings("rawtypes")
 	public void deleteNode(String node) {
 		defaultColors();
@@ -927,8 +945,12 @@ public class StructureAdapter extends JApplet
 		}
 	}
 
+	/**
+	 * Draw the path fetched from the StandardMethods class
+	 */
 	@SuppressWarnings("rawtypes")
 	public void findPath() {
+		//Reset the colors in the visualization
 		defaultColors();
 
 		String message = "";
@@ -938,6 +960,7 @@ public class StructureAdapter extends JApplet
 			ArrayList nodeList = sm.getPath();
 			if(nodeList != null && nodeList.size() > 1) {
 				ArrayList<String> breakingNodes = new ArrayList<String>();
+				//Verify that the edges make up a sequence
 				for (int i = 0; i < nodeList.size()-1; i++) {
 					if(findEdge(nodeList.get(i).toString(), nodeList.get(i+1).toString()) != null) {
 						edgesInPath.add(findEdge(nodeList.get(i).toString(), nodeList.get(i+1).toString()));
@@ -960,10 +983,12 @@ public class StructureAdapter extends JApplet
 					if(i == 0 || i == nodeList.size() - 1) startAndEnd.add(nodeList.get(i).toString());
 					else colorNodes.add(nodeList.get(i).toString());
 
+				//Color the edges and nodes of the path
 				switchNodeColor(startAndEnd, "#68EEEA");
 				switchNodeColor(colorNodes, HIGHLIGHT_COLOR);
 				switchEdgeColor(edgesInPath, EDGES_HIGHLIGHT);
 
+				//color in red the edges that break the sequence in the path
 				if(!breakingNodes.isEmpty())
 					switchNodeColor(breakingNodes, "#ea6161");
 				if(path.length() > 0) path = path.substring(0,path.length() - 3);
@@ -993,6 +1018,11 @@ public class StructureAdapter extends JApplet
 
 	}
 
+	
+	/**
+	 * Adds edges to the structure through the StandardMethods class
+	 * @param toAdd String 
+	 */
 	@SuppressWarnings("rawtypes")
 	public void addEdge(String toAdd) {
 		defaultColors();
@@ -1072,6 +1102,9 @@ public class StructureAdapter extends JApplet
 
 	}
 
+	/**
+	 * Draws the edges set fetched from the StandardMethods class
+	 */
 	public void showEdges() {
 		String operation = "El conjunto de arcos retornó: ";
 		ArrayList<Edge<Object>> edgesSet = sm.showEdgesSet();
@@ -1093,6 +1126,10 @@ public class StructureAdapter extends JApplet
 		}
 	}
 
+	
+	/**
+	 * Draws the node set fetched from the StandardMethods class
+	 */
 	@SuppressWarnings("rawtypes")
 	public void showNodes() {
 		String operation = "El conjunto de nodos retornó: ";
@@ -1116,12 +1153,19 @@ public class StructureAdapter extends JApplet
 
 	}
 
+	/**
+	 * Sets the message inthe info panel when the input is empty
+	 * @param operation Operation that is clicked by the user
+	 */
 	public void emptyInput(String operation) {
 		infoPanelContent.setText(operation + " no se completó");
 		String error = "La entrada especificada está vacía";
 		JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
 	}
 
+	/**
+	 * Fetches the initial data of the structure and displays it without any of the changes made to it
+	 */
 	public void restartStructure() {
 		try {
 			removeEdgesAndNodes();
