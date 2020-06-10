@@ -205,7 +205,9 @@ public class Digraph<K, V> implements IGraph<K, V> {
 		public DepthFirstOrder( Digraph<K,V> G ) {
 			reversePost   = new Stack<K>();
 			marked  = new LinearProbingHash<K, Boolean>();
-
+			// Correccion: inicializar atributo vertices
+			vertices = new ArrayList<K>();
+			
 			for ( K v : HT.keys() ) 
 				marked.put( v , false);
 
@@ -213,16 +215,19 @@ public class Digraph<K, V> implements IGraph<K, V> {
 			for ( K v : HT.keys() )
 				if (!marked.get(v)) dfs(G, v);
 
-			for(K vert : vertices) System.out.println(vert);
+			// for(K vert : vertices) System.out.println(vert);
 		}
 
 		private void dfs(Digraph<K,V> G, K v)
 		{
 			marked.put(v, true);
+			// Correccion: agregar el vertice v a los vertices
+			vertices.add(v);
 
 			for (K w : adj(v))
 				if (!marked.get(w)) {
-					vertices.add(v);
+					// Correccion: eliminar instruccion
+					// vertices.add(v);
 					dfs(G, w);
 				}
 
@@ -249,8 +254,14 @@ public class Digraph<K, V> implements IGraph<K, V> {
 		for(DiArco arco : edges()) {
 			if(HT.get(arco.fin) != null) {
 				Edge<K> edge = new Edge<K>(arco.inicio, arco.fin);
-				if(!edges.contains(edge));
-				edges.add(edge);
+				// if(!edges.contains(edge));  // Instruccion con error
+				// Correccion: instruccion corregida
+				// Inicio bloque
+				if(!edges.contains(edge))  
+				{
+					edges.add(edge);
+				}
+				// Fin bloque
 			}
 		}
 		return edges;
@@ -260,12 +271,29 @@ public class Digraph<K, V> implements IGraph<K, V> {
 		return HT.get(idVertex);
 	}
 
-	public Edge<K> findEdge(String start, String end){
+	// Correccion: Tipos de paramatero K (clase de identificadores unicos)
+	public Edge<K> findEdge(K start, K end){
+		// Correccion: implementacion de busqueda de un arco 
+		/*
 		Edge<K> edge = new Edge<K>();
 		for(Edge<K> current : getEdges()) {
 			if(current.start.toString().equals(start) && current.end.toString().equals(end)) {
 				edge = current;
 				return edge;
+			}
+		}
+		*/
+		Vertice vI = HT.get(start);
+		Vertice vF = HT.get(end);
+		
+		if ( vI != null && vF != null)
+		{
+			for (DiArco arco : vI.adyacentes)
+			{
+				if ( arco.fin.equals(end))
+				{
+					return new Edge<K>(start, end);
+				}
 			}
 		}
 		return null;
@@ -284,6 +312,9 @@ public class Digraph<K, V> implements IGraph<K, V> {
 		return edges;
 	}
 	
+	// Correccion: Este metodo NO se necesita
+	// Nota: Se corrigio el metodo createStructure() en la clase StandardMethods
+	/*
 	public ArrayList<Edge<K>> neighborsForUndirected(K idVertex){
 		ArrayList<Edge<K>> edges = new ArrayList<Edge<K>>();
 		Vertice v = null;
@@ -305,7 +336,7 @@ public class Digraph<K, V> implements IGraph<K, V> {
 		}
 		return edges;
 	}
-
+	*/
 	public ArrayList<Vertice> startingNodeSet(){
 		ArrayList<Vertice> nodeSet = new ArrayList<Vertice>();
 		int i = 0;
@@ -322,6 +353,21 @@ public class Digraph<K, V> implements IGraph<K, V> {
 
 	public void deleteNode(K idVertex) {
 		HT.delete(idVertex);
+		// Correccion: falta borrar los arcos que llegan al vertice borrado
+		// Inicio Bloque: Recorrer vertices restantes y revisar sus adyacentes
+		//
+		ArrayList<Vertice> vertices = getNodes();
+		for (int i = 0; i < vertices.size(); i++) {
+			LinkedList<DiArco> lista = vertices.get(i).adyacentes;
+			for(DiArco edge : lista)
+			{
+				if ( edge.fin.equals(idVertex) )
+				{
+					// TODO borrar el DiArco edge de la lista
+				}
+			}
+		}
+		// Fin Bloque
 	}
 	
 	public ArrayList<Edge<K>> showEdgesSet(){
@@ -345,13 +391,14 @@ public class Digraph<K, V> implements IGraph<K, V> {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public ArrayList getPath() {
 		ArrayList<K> n = dfo(this);
-		ArrayList ret = new ArrayList();
+
+		ArrayList<K> ret = new ArrayList();
 		for(int i = 0; i < n.size() - 1; i++) {
-			if(findEdge(n.get(i).toString(), n.get(i+1).toString()) != null) {
+			if( findEdge(n.get(i), n.get(i+1) ) != null) {
 				if(!ret.contains(n.get(i))) ret.add(n.get(i));
 				if(!ret.contains(n.get(i+1))) ret.add(n.get(i+1));
 			}
-			else {
+			else if (ret.size() >= 2) {  // Correccion: Agregar condicion para intentar buscar camino de al menos un arco
 				break;
 			}
 			
@@ -367,7 +414,9 @@ public class Digraph<K, V> implements IGraph<K, V> {
 	public ArrayList<K> dfo(Digraph<K, V> graph) {
 		reversePost   = new Stack<K>();
 		marked  = new LinearProbingHash<K, Boolean>();
-
+		// Correccion: inicializar atributo vertices
+		vertices = new ArrayList<K>();  // nueva instruccion
+		
 		for ( K v : HT.keys() ) 
 			marked.put( v , false);
 
@@ -381,9 +430,12 @@ public class Digraph<K, V> implements IGraph<K, V> {
 	private void dfs(Digraph<K,V> G, K v)
 	{
 		marked.put(v, true);
-
+		// Correccion: agregar instruccion
+		vertices.add(v);	// nueva instruccion
+		
 		for (K w : adj(v)) {
-			if(!vertices.contains(v)) vertices.add(v);
+			// Correccion: borrar instruccion
+			// if(!vertices.contains(v)) vertices.add(v);
 			if (!marked.get(w)) {
 				dfs(G, w);
 			}

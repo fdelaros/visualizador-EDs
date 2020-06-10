@@ -99,7 +99,10 @@ public class BinaryTree
 			recorrerSubarbol(nodo);
 			NodoArbol menor = nodo;
 			for(NodoArbol current : subarbol) {
-				if(current.datos.compareTo(menor.datos) < 1) menor = current;
+				// Instruccion corregida
+				// if(current.datos.compareTo(menor.datos) < 1) menor = current;
+				// Correccion: comparacion estricta entre Strings
+				if(current.datos.compareTo(menor.datos) < 0) menor = current;
 			}
 			return menor;
 		}
@@ -266,7 +269,8 @@ public class BinaryTree
 	}
 
 	public void deleteNode(String tag) {
-		raiz.deleteNode(tag);
+		// Correccion: instruccion corregida
+		raiz = raiz.deleteNode(tag);   // actualiza la raiz si la raiz contiene el dato a eliminar
 		vertices.remove(getNode(tag));
 		parseEdges();
 	}
@@ -314,11 +318,15 @@ public class BinaryTree
 		bst.fillTree();
 		bst.parseEdges();
 		System.out.println("\n");
+		System.out.println("raiz=" + bst.raiz.datos);
+		System.out.println("vertices:");
 		ArrayList<NodoArbol> vert = bst.vertices;
 		for(NodoArbol n : vert) System.out.println(n.datos);
-		System.out.println(bst.raiz.datos);
+
 		bst.deleteNode(bst.raiz.datos);
-		System.out.println(bst.raiz.datos);
+		System.out.println("raiz=" + bst.raiz.datos);
+		vert = bst.vertices;
+		for(NodoArbol n : vert) System.out.println(n.datos);
 	}
 
 }

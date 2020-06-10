@@ -87,7 +87,8 @@ public class LinkedList {
 		ArrayList nodeList = new ArrayList();
 
 		Node currNode = list.head;
-		nodeList.add(currNode);
+		if (currNode != null) // Correccion: nueva instruccion
+		    nodeList.add(currNode);
 
 		while (currNode != null) {
 			currNode = currNode.next;
@@ -133,7 +134,9 @@ public class LinkedList {
 		Node currNode = list.head;
 
 		while (currNode != null) {
-			if(currNode.data.equals(start) && currNode.next.data.equals(end)) {
+//			if(currNode.data.equals(start) && currNode.next.data.equals(end)) {
+			// Correccion: Instruccion corregida
+			if(currNode.data.equals(start) && currNode.next != null && currNode.next.data.equals(end)) {  
 				edge = new Edge<Object>(currNode, currNode.next);
 				break;
 			}
@@ -179,6 +182,7 @@ public class LinkedList {
 		// Return the node
 		return new_node;
 	}
+	// Warning: revisar que pasa si el dato No se encuentra. Posible NullPointerException
 	public Node delete(LinkedList list, String data) {
 		// Create a new node with given data
 		Node delete = getNode(list, data);

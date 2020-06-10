@@ -697,14 +697,17 @@ public class StructureAdapter extends JApplet
 				ArrayList<Edge<Nodo>> edgesList = new ArrayList<Edge<Nodo>>();
 				ArrayList<String> nodeNeighbors = new ArrayList<String>();
 				ArrayList<Edge<Object>> neighborsFromStudent = sm.getNeighbors(node);
-
+				
 				for(Object current : neighborsFromStudent) {
 					Edge auxEdge = (Edge) current;
 					if(findNode(auxEdge.start.toString()) != null && findNode(auxEdge.end.toString()) != null) {
 						Edge<Nodo> edge = new Edge(findNode(auxEdge.start.toString()),findNode(auxEdge.end.toString() ));
 						edgesList.add(edge);
-						if(structureType == 1)
-							nodeNeighbors.add(findNode(auxEdge.start.toString()).name);
+						// Correccion: No incluir el nodo origen de la busqueda como adyacente de El mismo
+						// Inicio Bloque
+//						if(structureType == 1)
+//							nodeNeighbors.add(findNode(auxEdge.start.toString()).name);
+						// Fin Bloque
 						nodeNeighbors.add(findNode(auxEdge.end.toString()).name);
 						if(structureType == 3) {
 							edge = new Edge(findNode(auxEdge.end.toString()), findNode(auxEdge.start.toString()));
@@ -716,8 +719,10 @@ public class StructureAdapter extends JApplet
 				if(!nodeNeighbors.isEmpty()) {
 					if(structureType != 1) {
 						String results = "";
-						for(String nodeNeighbor : nodeNeighbors) 
-							if(!results.contains(nodeNeighbor))
+						for(String nodeNeighbor : nodeNeighbors)
+							// Correccion: No verificar contenencia de identificadores con Strings
+							// Un String corto (por ejemplo "8"), puede estar en un String largo (por ejemplo "85")
+							// if(!results.contains(nodeNeighbor))
 								results += nodeNeighbor + ", ";
 
 						results = results.substring(0, results.length() - 2);
@@ -725,7 +730,9 @@ public class StructureAdapter extends JApplet
 					}
 					else {
 						for(String nodeNeighbor : nodeNeighbors) 
-							if(!operation.contains(nodeNeighbor))
+							// Correccion: No verificar contenencia de identificadores con Strings
+							// Un String corto (por ejemplo "8"), puede estar en un String largo (por ejemplo "85")
+							// if(!operation.contains(nodeNeighbor))
 								operation += nodeNeighbor + ", ";
 
 						operation = operation.substring(0, operation.length() - 2);

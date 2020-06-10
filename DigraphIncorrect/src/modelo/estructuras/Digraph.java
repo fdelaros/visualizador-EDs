@@ -264,10 +264,12 @@ public class Digraph<K, V> implements IGraph<K, V> {
 		return null;
 	}
 
-	public Edge<K> findEdge(String start, String end){
+	// Correccion: cambio tipo de parametros K
+	public Edge<K> findEdge(K start, K end){
 		Edge<K> edge = null;
 		for(Edge<K> current : getEdges()) {
-			if(current.start.toString().equals(start) && current.end.toString().equals(end)) {
+			// Correccion: cambio en la comparacion de parametros con valores tipo K
+			if(current.start.equals(start) && current.end.equals(end)) {
 				edge = current;
 				break;
 			}
@@ -419,7 +421,8 @@ public class Digraph<K, V> implements IGraph<K, V> {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void main(String[] args) {
 		int graphSize = 10;
-		Digraph graph = new Digraph(graphSize);
+		// Correccion: completar clases para tipos genericos
+		Digraph<Integer,String> graph = new Digraph(graphSize);
 		graph = new Digraph(graphSize);
 		for (int i = 0; i < graphSize; i++) {
 			graph.addVertex(i, "nodo numero " + i);
@@ -429,7 +432,8 @@ public class Digraph<K, V> implements IGraph<K, V> {
 			int numEdges = (int) Math.floor(Math.random() * 4);
 			for (int j = 0; j < numEdges; j++) {
 				int destination = (int) Math.floor(Math.random() * graphSize);
-				if(graph.findEdge(Integer.toString(i), Integer.toString(destination)) == null) {
+				// Correccion: tipos K usados para el metodo findEdge
+				if(graph.findEdge(i, destination) == null) {
 					graph.addEdge(i, destination, 0.5);
 					System.out.println(i + "->" + destination);
 				}

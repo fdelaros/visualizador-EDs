@@ -24,9 +24,18 @@ public class StandardMethods implements IStandardMethods<Object>{
 			for (int j = 0; j < numEdges; j++) {
 				int destination = (int) Math.floor(Math.random() * graphSize);
 				double weight = Math.floor(Math.random() * 20);
-				if(graph.findEdge(Integer.toString(i), Integer.toString(destination)) == null) {
+				if(graph.findEdge(i, destination) == null) {
 					graph.addEdge(i, destination, weight);
 				}
+				// Correccion: agregar arco en direccion opuesta en caso de grafo No dirigido
+				// Inicio Bloque 
+				if(structureType() == 3)
+				{
+					if(graph.findEdge(destination, i) == null) {
+						graph.addEdge(destination, i, weight);
+					}					
+				}
+				// Fin Bloque 
 			}
 		}
 	}
@@ -52,8 +61,13 @@ public class StandardMethods implements IStandardMethods<Object>{
 
 	@SuppressWarnings("unchecked")
 	public ArrayList<Edge<Object>> getNeighbors(String idVertex) {
+		// Correccion instruccion
+		/*
 		if(structureType() == 3) return graph.neighborsForUndirected(Integer.parseInt(idVertex));
 		else return graph.getNeighbors(Integer.parseInt(idVertex));
+		*/
+		// Correccion valor de retorno
+		return graph.getNeighbors(Integer.parseInt(idVertex));
 	}
 
 
@@ -72,7 +86,7 @@ public class StandardMethods implements IStandardMethods<Object>{
 	
 	@SuppressWarnings("unchecked")
 	public Edge<Object> findEdge(String startNode, String endNode) {
-		return graph.findEdge(startNode, endNode);
+		return graph.findEdge(Integer.parseInt(startNode), Integer.parseInt(endNode));
 	}
 
 
@@ -96,6 +110,11 @@ public class StandardMethods implements IStandardMethods<Object>{
 	}
 
 
+	/*
+	 * Tipo 2: Grafo Dirigido
+	 * Tipo 3: Grafo No Dirigido
+	 * @see modelo.complementos.IStandardMethods#structureType()
+	 */
 	public int structureType() {
 		return 3;
 	}
@@ -104,7 +123,20 @@ public class StandardMethods implements IStandardMethods<Object>{
 	@SuppressWarnings("unchecked")
 	@Override
 	public void addEdge(String startNode, String endNode) {
-		graph.addEdge(Integer.parseInt(startNode), Integer.parseInt(endNode), 0.5);
+		//Correccion: agregar arco en direccion startNode > endNode si No existe (condicional agregado)
+		if(graph.findEdge(Integer.parseInt(startNode), Integer.parseInt(endNode)) == null) {
+			graph.addEdge(Integer.parseInt(startNode), Integer.parseInt(endNode), 0.5);
+		}
+		
+		//Correccion: agregar arco en direccion opuesta en caso de grafo No dirigido (si no existe)
+		// Inicio Bloque
+		if(structureType() == 3)
+		{
+			if(graph.findEdge(Integer.parseInt(endNode), Integer.parseInt(startNode)) == null) {
+				graph.addEdge(Integer.parseInt(endNode), Integer.parseInt(startNode), 0.5);
+			}					
+		}
+		// Fin Bloque
 	}
 
 
