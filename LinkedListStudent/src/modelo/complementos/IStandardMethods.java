@@ -88,7 +88,8 @@ public interface IStandardMethods<K> {
 	 * Tipo de estructura del estudiante
 	 * @return 0 para árbol
 	 * @return 1 para lista encadenada 
-	 * @return 2 para grafo
+	 * @return 2 para grafo dirigido
+	 * @return 3 para grafo no dirigido
 	 */
 	int structureType();
 

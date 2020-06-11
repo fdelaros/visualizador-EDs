@@ -116,7 +116,7 @@ public class StandardMethods implements IStandardMethods<Object>{
 	 * @see modelo.complementos.IStandardMethods#structureType()
 	 */
 	public int structureType() {
-		return 3;
+		return 2;
 	}
 
 

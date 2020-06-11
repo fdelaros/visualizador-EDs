@@ -88,7 +88,7 @@ public class LinkedList {
 
 		Node currNode = list.head;
 		if (currNode != null) // Correccion: nueva instruccion
-		    nodeList.add(currNode);
+			nodeList.add(currNode);
 
 		while (currNode != null) {
 			currNode = currNode.next;
@@ -134,7 +134,7 @@ public class LinkedList {
 		Node currNode = list.head;
 
 		while (currNode != null) {
-//			if(currNode.data.equals(start) && currNode.next.data.equals(end)) {
+			//			if(currNode.data.equals(start) && currNode.next.data.equals(end)) {
 			// Correccion: Instruccion corregida
 			if(currNode.data.equals(start) && currNode.next != null && currNode.next.data.equals(end)) {  
 				edge = new Edge<Object>(currNode, currNode.next);
@@ -186,19 +186,22 @@ public class LinkedList {
 	public Node delete(LinkedList list, String data) {
 		// Create a new node with given data
 		Node delete = getNode(list, data);
-		if(list.head.data.equals(delete.data)) {
-			list.head = delete.next;
-		}
-		else {
-			Node previous = null;
-			Node current = list.head;
-			while(current != delete) {
-				previous = current;
-				current = current.next;
+		if(delete != null) {
+			if(list.head.data.equals(delete.data)) {
+				list.head = delete.next;
 			}
-			previous.next = current.next;
+			else {
+				Node previous = null;
+				Node current = list.head;
+				while(current != delete) {
+					previous = current;
+					current = current.next;
+				}
+				previous.next = current.next;
+			}
+			return delete;
 		}
-		return delete;
+		else return null;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

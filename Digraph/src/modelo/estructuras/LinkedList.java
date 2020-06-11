@@ -19,6 +19,30 @@ public class LinkedList<T> implements Iterable<T>, IList<T> {
 		N++;
 	}
 
+	public void delete( T elem ) {
+		Node actual = primero;
+		Node prev = null;
+
+		while( actual != null ) {
+			if(actual.item.equals(elem)) {
+				if(actual.equals(primero)) {
+					primero = primero.next;
+				}
+				else if( actual.next != null ) {
+					prev.next = actual.next;
+				}
+				else {
+					prev.next = null;
+				}
+				break;
+			}
+			prev = actual;
+			actual = actual.next;
+
+		}
+
+	}
+
 	/**
 	 * Retorna el número de elementos en la lista.
 	 * @return

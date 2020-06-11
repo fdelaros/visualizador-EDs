@@ -1161,7 +1161,7 @@ public class StructureAdapter extends JApplet
 	}
 
 	/**
-	 * Sets the message inthe info panel when the input is empty
+	 * Sets the message in the info panel when the input is empty
 	 * @param operation Operation that is clicked by the user
 	 */
 	public void emptyInput(String operation) {
