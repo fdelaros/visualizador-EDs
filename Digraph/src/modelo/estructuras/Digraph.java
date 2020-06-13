@@ -363,7 +363,7 @@ public class Digraph<K, V> implements IGraph<K, V> {
 			{
 				if ( edge.fin.equals(idVertex) )
 				{
-					// TODO borrar el DiArco edge de la lista
+					lista.delete(edge);
 				}
 			}
 		}

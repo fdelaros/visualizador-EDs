@@ -31,6 +31,7 @@ import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 
 import modelo.complementos.*;
+import modelo.estructuras.Digraph.Vertice;
 
 
 /**
@@ -41,7 +42,8 @@ import modelo.complementos.*;
 public class StructureAdapter extends JApplet
 {
 	private static final long serialVersionUID = 2202072534703043194L;
-	private static final Dimension DEFAULT_SIZE = new Dimension(1366, 768);
+//	private static final Dimension DEFAULT_SIZE = new Dimension(1366, 768);
+	private static final Dimension DEFAULT_SIZE = new Dimension(1200, 700);
 
 	//list with the nodes
 	@SuppressWarnings("rawtypes")
@@ -413,10 +415,13 @@ public class StructureAdapter extends JApplet
 			Edge auxEdge = (Edge) current;
 			Edge<Nodo> edge = new Edge(findNode(auxEdge.start.toString()),findNode(auxEdge.end.toString()));
 			inputEdges.add(edge);
+			// Correccion: No agregar arco en direccion contraria
+			/*
 			if(structureType == 3) {
 				edge = new Edge(findNode(auxEdge.end.toString()), findNode(auxEdge.start.toString()));
 				inputEdges.add(edge);
 			}
+			*/
 		}
 		return inputEdges;
 	}
@@ -585,6 +590,8 @@ public class StructureAdapter extends JApplet
 		String responseFromStructure = "";
 		try {
 			for(String a : nodeSet) {
+				// Correccion: verificar que findNode(a) encuentra lo mismo que sm.findNode(a) si existe
+				// Correccion: Si no existe findNode(a) tampoco existe sm.findNode(a)
 				if(findNode(a) != null) {
 					String result = sm.findNode(a).toString();
 					responseFromStructure += result + ", ";
@@ -638,16 +645,22 @@ public class StructureAdapter extends JApplet
 			for (int i = 0; i < edgesSet.length; i++) {
 				if(edgesSet[i].contains(">")) {
 					String[] edgeContent = edgesSet[i].split(">");
+					// Correccion: verificar que findEdge(...) encuentra exactamente el mismo arco (y en la misma direccion) que sm.findEdge(...) si existe
+					// Si no existe arco, ninguno de los dos lo encuentra.
+					// Si uno lo encuentra y el otro No lo encuentra, hay inconsistencia entonces Error
+
 					if(findEdge(edgeContent[0], edgeContent[1]) != null) {
 						if(structureType == 3) {
 							if(sm.findEdge(edgeContent[0], edgeContent[1]) != null)
 								searchResult = sm.findEdge(edgeContent[0], edgeContent[1]);
 							else if(sm.findEdge(edgeContent[1], edgeContent[0]) != null)
 								searchResult = sm.findEdge(edgeContent[1], edgeContent[0]);
-
+							// Comentario: Como estar seguro que serachResult encontro el arco?
+							// Comentario: ¿Porque se agrega el arco del end>start?
 							edgesList.add(findEdge(searchResult.end.toString(), searchResult.start.toString()));
 						}
 						else searchResult = sm.findEdge(edgeContent[0], edgeContent[1]);
+						// Comentario:¿ Como estar seguro que se encontro el arco searchResult?
 						current = findEdge(searchResult.start.toString(), searchResult.end.toString());
 						edgesList.add(current);
 						result += current.start.name + ">" + current.end.name + ", ";
@@ -838,6 +851,7 @@ public class StructureAdapter extends JApplet
 				infoPanelContent.setText(operation);
 			}
 		catch(Exception e) {
+			System.out.println("Exception:" + e.getMessage());
 			operation += " no se completó";
 			infoPanelContent.setText(operation);
 			String notFound = "No se ha agregado el nodo: " + node;

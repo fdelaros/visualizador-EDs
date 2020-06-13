@@ -21,4 +21,11 @@ public class Edge<K>{
 	public Edge() {
 		
 	}
+
+	// Correccion: agregar metodo para usarlo en el metodo contains de ArrayList<Edge<K>> en 
+	// metodo getEdges() de la clase Digraph.
+	public boolean equals(Edge<K> o)
+	{
+		return start.equals(o.start) && end.equals(o.end);
+	}
 }

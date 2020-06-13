@@ -7,22 +7,27 @@ import modelo.estructuras.Digraph;
 public class StandardMethods implements IStandardMethods<Object>{
 
 	int size = 100;
+//	int size = 0;
 	@SuppressWarnings("rawtypes")
 	private static Digraph graph;
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void createStructure() {
-		graph = new Digraph();
-		int graphSize = size;
-		graph = new Digraph(graphSize);
-		for (int i = 0; i < graphSize; i++) {
+//		int graphSize = size;
+		// Correccion: usar atributo size como tamaNo de la estructura
+		// Si size es 0, el grafo debe iniciarse con una capacidad diferente de 0
+		if ( size == 0)
+			graph = new Digraph();
+		else
+			graph = new Digraph(size);
+		for (int i = 0; i < size; i++) {
 			graph.addVertex(i, "nodo numero " + i);
 		}
 
-		for(int i = 0; i < graphSize; i++) {
+		for(int i = 0; i < size; i++) {
 			int numEdges = (int) Math.floor(Math.random() * 4);
 			for (int j = 0; j < numEdges; j++) {
-				int destination = (int) Math.floor(Math.random() * graphSize);
+				int destination = (int) Math.floor(Math.random() * size);
 				double weight = Math.floor(Math.random() * 20);
 				if(graph.findEdge(i, destination) == null) {
 					graph.addEdge(i, destination, weight);
@@ -53,12 +58,14 @@ public class StandardMethods implements IStandardMethods<Object>{
 	}
 
 
+	// Correccion: Usar el tipo generico K
 	@SuppressWarnings({ "unchecked"})
 	public ArrayList<Edge<Object>> getEdgesList() {
 		return graph.getEdges();
 	}
 
 
+	// Correccion: Usar el tipo generico K
 	@SuppressWarnings("unchecked")
 	public ArrayList<Edge<Object>> getNeighbors(String idVertex) {
 		// Correccion instruccion
@@ -71,6 +78,7 @@ public class StandardMethods implements IStandardMethods<Object>{
 	}
 
 
+	// Correccion tipo de nodo en la respuesta
 	@SuppressWarnings("unchecked")
 	@Override
 	public ArrayList<Object> showNodeSet() {
@@ -103,6 +111,7 @@ public class StandardMethods implements IStandardMethods<Object>{
 	}
 
 
+	// Correccion tipo de nodo en la respuesta
 	@SuppressWarnings("unchecked")
 	@Override
 	public ArrayList<Object> getPath() {
@@ -116,7 +125,7 @@ public class StandardMethods implements IStandardMethods<Object>{
 	 * @see modelo.complementos.IStandardMethods#structureType()
 	 */
 	public int structureType() {
-		return 3;
+		return 2;
 	}
 
 
@@ -140,6 +149,7 @@ public class StandardMethods implements IStandardMethods<Object>{
 	}
 
 
+	// Correccion tipo de nodo en la respuesta
 	@SuppressWarnings("unchecked")
 	@Override
 	public ArrayList<Edge<Object>> showEdgesSet() {
