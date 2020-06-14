@@ -1,4 +1,4 @@
-package app;
+package src.app;
 
 class Nodo<T> {
 	T info;

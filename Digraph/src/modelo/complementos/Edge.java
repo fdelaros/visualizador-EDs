@@ -21,7 +21,7 @@ public class Edge<K>{
 	public Edge() {
 		
 	}
-	
+
 	public boolean equals(Edge<K> o)
 	{
 		return start.equals(o.start) && end.equals(o.end);

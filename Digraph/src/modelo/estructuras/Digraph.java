@@ -403,14 +403,15 @@ public class Digraph<K, V> implements IGraph<K, V> {
 		ArrayList<K> n = dfo(this);
 
 		ArrayList<K> ret = new ArrayList();
-		if(n.size() >= 2)
-			for(int i = 0; i < n.size() - 1; i++) {
-				if( findEdge(n.get(i), n.get(i+1) ) != null) {
-					if(!ret.contains(n.get(i))) ret.add(n.get(i));
-					if(!ret.contains(n.get(i+1))) ret.add(n.get(i+1));
-				}
-
+		for(int i = 0; i < n.size() - 1; i++) {
+			if( findEdge(n.get(i), n.get(i+1) ) != null) {
+				if(!ret.contains(n.get(i))) ret.add(n.get(i));
+				if(!ret.contains(n.get(i+1))) ret.add(n.get(i+1));
 			}
+			else if (ret.size() >= 2) { // Correccion: Condicional para garantizar camino de al menos 2 vertices
+				break;
+			}
+		}
 		return ret;
 	}
 

@@ -39,12 +39,12 @@ public class LinkedList<T> implements Iterable<T>, IList<T> {
 			prev = actual;
 			actual = actual.next;
 
+			
 		}
-
 	}
-
-	/**
-	 * Retorna el número de elementos en la lista.
+		
+   /**
+	* Retorna el número de elementos en la lista.
 	 * @return
 	 */
 	public int size() {

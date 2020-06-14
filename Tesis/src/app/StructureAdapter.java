@@ -1,4 +1,4 @@
-package app;
+package src.app;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -31,6 +31,7 @@ import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 
 import modelo.complementos.*;
+import modelo.estructuras.*;
 
 
 /**
@@ -41,7 +42,8 @@ import modelo.complementos.*;
 public class StructureAdapter extends JApplet
 {
 	private static final long serialVersionUID = 2202072534703043194L;
-	private static final Dimension DEFAULT_SIZE = new Dimension(1366, 768);
+//	private static final Dimension DEFAULT_SIZE = new Dimension(1366, 768);
+	private static final Dimension DEFAULT_SIZE = new Dimension(1200, 700);
 
 	//list with the nodes
 	@SuppressWarnings("rawtypes")
@@ -419,6 +421,7 @@ public class StructureAdapter extends JApplet
 			Edge auxEdge = (Edge) current;
 			Edge<Nodo> edge = new Edge(findNode(auxEdge.start.toString()),findNode(auxEdge.end.toString()));
 			inputEdges.add(edge);
+
 		}
 		return inputEdges;
 	}
@@ -608,6 +611,7 @@ public class StructureAdapter extends JApplet
 						nodeList.add(resultInStructure);
 						errorResult += a + ", ";
 					}
+
 				}
 				else {
 					notFound += a + ", " ;
@@ -667,6 +671,7 @@ public class StructureAdapter extends JApplet
 			for (int i = 0; i < edgesSet.length; i++) {
 				if(edgesSet[i].contains(">")) {
 					String[] edgeContent = edgesSet[i].split(">");
+
 					resultInVisualization = findEdge(edgeContent[0], edgeContent[1]) != null ? findEdge(edgeContent[0], edgeContent[1]) : null;
 					Edge aux = sm.findEdge(edgeContent[0], edgeContent[1]) != null ? sm.findEdge(edgeContent[0], edgeContent[1]) : null;
 					resultInStructure  = aux != null ? new Edge<Nodo>(new Nodo(aux.start.toString()), new Nodo(aux.end.toString())) : null;
@@ -692,6 +697,7 @@ public class StructureAdapter extends JApplet
 							nodeSet += edgeContent[0] + "," + edgeContent[1] + ",";
 							errorResult += resultInStructure.start.name + ">" + resultInStructure.end.name + ", ";
 						}
+
 					}
 					else notFound += edgeContent[0] + ">" + edgeContent[1] + ", ";
 				}
@@ -873,6 +879,7 @@ public class StructureAdapter extends JApplet
 				infoPanelContent.setText(operation);
 			}
 		catch(Exception e) {
+			System.out.println("Exception:" + e.getMessage());
 			operation += " no se completó";
 			infoPanelContent.setText(operation);
 			String notFound = "No se ha agregado el nodo: " + node;
