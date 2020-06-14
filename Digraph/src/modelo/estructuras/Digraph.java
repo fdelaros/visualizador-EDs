@@ -53,18 +53,28 @@ public class Digraph<K, V> implements IGraph<K, V> {
 	}
 
 	@Override
-	public void addEdge(K idVertexIni, K idVertexFin, Double infoArc) {
+	public boolean addEdge(K idVertexIni, K idVertexFin, Double infoArc) {
+		//No se agrega el arco porque ya existe
+		if(findEdge(idVertexIni, idVertexFin) != null) {
+			return false;
+		}
+		else {
+			//Se obtienen los vertices de inicio y fin del arco y se crea el arco
+			Vertice inicio = HT.get(idVertexIni);
+			DiArco nuevo = new DiArco(infoArc,idVertexIni,idVertexFin);
 
-		//Se obtienen los vertices de inicio y fin del arco y se crea el arco
-		Vertice inicio = HT.get(idVertexIni);
-		DiArco nuevo = new DiArco(infoArc,idVertexIni,idVertexFin);
+			// se agrega el arco al nodo de inicio.
+			LinkedList<DiArco> lista = inicio.adyacentes;
+			lista.add(nuevo);
+			inicio.adyacentes = lista;
 
-		// se agrega el arco al nodo de inicio.
-		LinkedList<DiArco> lista = inicio.adyacentes;
-		lista.add(nuevo);
-		inicio.adyacentes = lista;
+			nArcos++;
 
-		nArcos++;
+			if(findEdge(idVertexIni, idVertexFin) != null) {
+				return true;
+			};
+			return false;
+		}
 	}
 
 	@Override
@@ -207,7 +217,7 @@ public class Digraph<K, V> implements IGraph<K, V> {
 			marked  = new LinearProbingHash<K, Boolean>();
 			// Correccion: inicializar atributo vertices
 			vertices = new ArrayList<K>();
-			
+
 			for ( K v : HT.keys() ) 
 				marked.put( v , false);
 
@@ -282,10 +292,10 @@ public class Digraph<K, V> implements IGraph<K, V> {
 				return edge;
 			}
 		}
-		*/
+		 */
 		Vertice vI = HT.get(start);
 		Vertice vF = HT.get(end);
-		
+
 		if ( vI != null && vF != null)
 		{
 			for (DiArco arco : vI.adyacentes)
@@ -311,7 +321,7 @@ public class Digraph<K, V> implements IGraph<K, V> {
 		}
 		return edges;
 	}
-	
+
 	// Correccion: Este metodo NO se necesita
 	// Nota: Se corrigio el metodo createStructure() en la clase StandardMethods
 	/*
@@ -336,7 +346,7 @@ public class Digraph<K, V> implements IGraph<K, V> {
 		}
 		return edges;
 	}
-	*/
+	 */
 	public ArrayList<Vertice> startingNodeSet(){
 		ArrayList<Vertice> nodeSet = new ArrayList<Vertice>();
 		int i = 0;
@@ -369,7 +379,7 @@ public class Digraph<K, V> implements IGraph<K, V> {
 		}
 		// Fin Bloque
 	}
-	
+
 	public ArrayList<Edge<K>> showEdgesSet(){
 		ArrayList<Edge<K>> edgesList = new ArrayList<Edge<K>>();
 		ArrayList<Vertice> vertices = getNodes();
@@ -384,26 +394,26 @@ public class Digraph<K, V> implements IGraph<K, V> {
 				}
 			}
 		}
-		
+
 		return edgesList;
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public ArrayList getPath() {
 		ArrayList<K> n = dfo(this);
 
 		ArrayList<K> ret = new ArrayList();
 		if(n.size() >= 2)
-		for(int i = 0; i < n.size() - 1; i++) {
-			if( findEdge(n.get(i), n.get(i+1) ) != null) {
-				if(!ret.contains(n.get(i))) ret.add(n.get(i));
-				if(!ret.contains(n.get(i+1))) ret.add(n.get(i+1));
+			for(int i = 0; i < n.size() - 1; i++) {
+				if( findEdge(n.get(i), n.get(i+1) ) != null) {
+					if(!ret.contains(n.get(i))) ret.add(n.get(i));
+					if(!ret.contains(n.get(i+1))) ret.add(n.get(i+1));
+				}
+
 			}
-			
-		}
 		return ret;
 	}
-	
+
 	// -----------------------------------------------------------------
 	// Recorrido
 	// -----------------------------------------------------------------
@@ -414,7 +424,7 @@ public class Digraph<K, V> implements IGraph<K, V> {
 		marked  = new LinearProbingHash<K, Boolean>();
 		// Correccion: inicializar atributo vertices
 		vertices = new ArrayList<K>();  // nueva instruccion
-		
+
 		for ( K v : HT.keys() ) 
 			marked.put( v , false);
 
@@ -430,7 +440,7 @@ public class Digraph<K, V> implements IGraph<K, V> {
 		marked.put(v, true);
 		// Correccion: agregar instruccion
 		vertices.add(v);	// nueva instruccion
-		
+
 		for (K w : adj(v)) {
 			// Correccion: borrar instruccion
 			// if(!vertices.contains(v)) vertices.add(v);

@@ -326,9 +326,10 @@ public class Digraph<K, V> implements IGraph<K, V> {
 	}
 
 	@SuppressWarnings("unused")
-	public void addEdgeDigraph(K idStart, K idEnd) {
+	public boolean addEdgeDigraph(K idStart, K idEnd) {
 		Vertice inicio = HT.get(idStart);
 		Vertice fin = HT.get(idEnd);
+		return true;
 	}
 
 	// -----------------------------------------------------------------

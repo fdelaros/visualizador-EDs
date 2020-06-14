@@ -95,10 +95,11 @@ public interface IStandardMethods<K> {
 
 	/**
 	 * Adición de un arco a la estructura
-	 * No implementar si es un árbol o lista encadenada
+	 * Retornar false para árbol binario ordenado o lista encadenada
 	 * @param startNode etiqueta asociada al nodo inicial
 	 * @param endNode etiqueta asociada al nodo final
+	 * @return true si se agregó, false de lo contrario
 	 */
-	void addEdge(String startNode, String endNode);
+	boolean addEdge(String startNode, String endNode);
 }
 

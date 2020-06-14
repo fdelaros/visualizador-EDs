@@ -8,7 +8,7 @@ public interface IGraph<K,V>extends Iterable<K>{
 
 	void addVertex( K idVertex, V infoVertex);
 
-	void addEdge(K idVertexIni, K idVertexFin, Double infoArc );
+	boolean addEdge(K idVertexIni, K idVertexFin, Double infoArc );
 
 	V getInfoVertex(K idVertex);
 

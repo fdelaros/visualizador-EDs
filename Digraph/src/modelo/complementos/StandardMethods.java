@@ -122,10 +122,11 @@ public class StandardMethods implements IStandardMethods<Object>{
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void addEdge(String startNode, String endNode) {
+	public boolean addEdge(String startNode, String endNode) {
+		boolean added = false;
 		//Correccion: agregar arco en direccion startNode > endNode si No existe (condicional agregado)
 		if(graph.findEdge(Integer.parseInt(startNode), Integer.parseInt(endNode)) == null) {
-			graph.addEdge(Integer.parseInt(startNode), Integer.parseInt(endNode), 0.5);
+			added = graph.addEdge(Integer.parseInt(startNode), Integer.parseInt(endNode), 0.5);
 		}
 		
 		//Correccion: agregar arco en direccion opuesta en caso de grafo No dirigido (si no existe)
@@ -133,10 +134,11 @@ public class StandardMethods implements IStandardMethods<Object>{
 		if(structureType() == 3)
 		{
 			if(graph.findEdge(Integer.parseInt(endNode), Integer.parseInt(startNode)) == null) {
-				graph.addEdge(Integer.parseInt(endNode), Integer.parseInt(startNode), 0.5);
+				added = graph.addEdge(Integer.parseInt(endNode), Integer.parseInt(startNode), 0.5);
 			}					
 		}
 		// Fin Bloque
+		return added;
 	}
 
 

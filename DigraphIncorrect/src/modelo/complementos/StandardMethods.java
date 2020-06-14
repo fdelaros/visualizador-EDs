@@ -12,6 +12,7 @@ public class StandardMethods implements IStandardMethods<Object>{
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void createStructure() {
+		graph = new Digraph();
 		int graphSize = size;
 		graph = new Digraph(graphSize);
 		for (int i = 0; i < graphSize; i++) {
@@ -22,9 +23,19 @@ public class StandardMethods implements IStandardMethods<Object>{
 			int numEdges = (int) Math.floor(Math.random() * 4);
 			for (int j = 0; j < numEdges; j++) {
 				int destination = (int) Math.floor(Math.random() * graphSize);
-				if(graph.findEdge(Integer.toString(i), Integer.toString(destination)) == null) {
-					graph.addEdge(i, destination, 0.5);
+				double weight = Math.floor(Math.random() * 20);
+				if(graph.findEdge(i, destination) == null) {
+					graph.addEdge(i, destination, weight);
 				}
+				// Correccion: agregar arco en direccion opuesta en caso de grafo No dirigido
+				// Inicio Bloque 
+				if(structureType() == 3)
+				{
+					if(graph.findEdge(destination, i) == null) {
+						graph.addEdge(destination, i, weight);
+					}					
+				}
+				// Fin Bloque 
 			}
 		}
 	}
@@ -99,8 +110,8 @@ public class StandardMethods implements IStandardMethods<Object>{
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void addEdge(String startNode, String endNode) {
-		graph.addEdgeDigraph(startNode, endNode);
+	public boolean addEdge(String startNode, String endNode) {
+		return graph.addEdgeDigraph(startNode, endNode);
 	}
 
 

@@ -69,9 +69,8 @@ public class StandardMethods implements IStandardMethods<Object>{
 	}
 
 	@Override
-	public void addEdge(String startNode, String endNode) {
-		// TODO Auto-generated method stub
-		
+	public boolean addEdge(String startNode, String endNode) {
+		return false;
 	}
 
 	@Override

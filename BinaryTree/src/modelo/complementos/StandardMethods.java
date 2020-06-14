@@ -73,8 +73,8 @@ public class StandardMethods implements IStandardMethods<Object> {
 	}
 
 	@Override
-	public void addEdge(String startNode, String endNode) {
-		
+	public boolean addEdge(String startNode, String endNode) {
+		return false;
 	}
 
 	@Override

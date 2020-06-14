@@ -62,6 +62,12 @@ public class StructureAdapter extends JApplet
 	private JTextArea infoPanelContent;
 	private int structureType = sm.structureType();
 
+	// Constants associated to the structure types
+	private static final int BINARY_TREE = 0;
+	private static final int LINKED_LIST = 1;
+	private static final int DIRECTED_GRAPH = 2;
+	private static final int UNDIRECTED_GRAPH = 3;	
+
 
 	public void init()
 	{
@@ -81,9 +87,9 @@ public class StructureAdapter extends JApplet
 		infoPanel.setLayout(new BorderLayout());
 		infoPanel.setPreferredSize(new Dimension(1366, 60));
 		String tipo = "";
-		if(structureType == 0) tipo = "árbol binario ordenado";
-		else if(structureType == 1) tipo = "lista encadenada";
-		else if(structureType == 2) tipo = "grafo dirigido";
+		if(structureType == BINARY_TREE) tipo = "árbol binario ordenado";
+		else if(structureType == LINKED_LIST) tipo = "lista encadenada";
+		else if(structureType == DIRECTED_GRAPH) tipo = "grafo dirigido";
 		else tipo = "grafo no dirigido";
 
 		infoPanelContent = new JTextArea();
@@ -208,7 +214,7 @@ public class StructureAdapter extends JApplet
 		p5.setLayout(new BoxLayout(p5, BoxLayout.PAGE_AXIS));	
 		String p5Text = "";
 		int tfSize = 10;
-		if(structureType == 0 || structureType == 1) {
+		if(structureType == BINARY_TREE || structureType == LINKED_LIST) {
 			p5Text = "<html>Buscar conexiones <br>(1 o más)</html>";
 		}
 		else {
@@ -230,7 +236,7 @@ public class StructureAdapter extends JApplet
 				String nodeRoute = tf5.getText();
 				nodeRoute = nodeRoute.replaceAll("\\s+","");
 				if(nodeRoute.isEmpty()) {
-					if(structureType == 0 || structureType == 1)
+					if(structureType == BINARY_TREE || structureType == LINKED_LIST)
 						emptyInput("La operación búsqueda de conexiones ");
 					else
 						emptyInput("La operación búsqueda de arcos ");
@@ -244,7 +250,7 @@ public class StructureAdapter extends JApplet
 		getEdges.addActionListener(searchEdges);
 
 		//Add edges panel
-		if(structureType == 2 || structureType == 3) {
+		if(structureType == DIRECTED_GRAPH || structureType == UNDIRECTED_GRAPH) {
 			JPanel p8 = new JPanel();
 			p8.setLayout(new BoxLayout(p8, BoxLayout.PAGE_AXIS));		
 			p8.add(new JLabel("Agregar  arcos (1 o más)"));
@@ -272,7 +278,7 @@ public class StructureAdapter extends JApplet
 		}
 
 		//Show edge set panel
-		if(structureType == 2 || structureType == 3) {
+		if(structureType == DIRECTED_GRAPH || structureType == UNDIRECTED_GRAPH) {
 			JPanel p7 = new JPanel();
 			p7.setLayout(new BoxLayout(p7, BoxLayout.PAGE_AXIS));
 			p7.add(new JLabel ("Mostrar arcos                           "));
@@ -357,12 +363,12 @@ public class StructureAdapter extends JApplet
 	public void initInfoPanel(String tipo) {
 		String message = "Estructura de datos: " + tipo;
 		message += "\nCantidad de nodos: " + nodos.size();
-		if(structureType == 0 || structureType == 1) {
+		if(structureType == BINARY_TREE || structureType == LINKED_LIST) {
 			message += "\nCantidad de conexiones: ";
 		}
 		else
 			message += "\nCantidad de arcos: ";
-		message = structureType == 3 ? message + edges.size()/2 : message + edges.size();
+		message = structureType == UNDIRECTED_GRAPH ? message + edges.size()/2 : message + edges.size();
 		infoPanelContent.setText(message);
 	}
 
@@ -413,10 +419,6 @@ public class StructureAdapter extends JApplet
 			Edge auxEdge = (Edge) current;
 			Edge<Nodo> edge = new Edge(findNode(auxEdge.start.toString()),findNode(auxEdge.end.toString()));
 			inputEdges.add(edge);
-			if(structureType == 3) {
-				edge = new Edge(findNode(auxEdge.end.toString()), findNode(auxEdge.start.toString()));
-				inputEdges.add(edge);
-			}
 		}
 		return inputEdges;
 	}
@@ -445,7 +447,7 @@ public class StructureAdapter extends JApplet
 		try {
 			sm.createStructure();
 			nodos = createNodes();
-			edges = structureType == 1 ? createEdgesForList() : createEdges();
+			edges = structureType == LINKED_LIST ? createEdgesForList() : createEdges();
 
 			setPreferredSize(DEFAULT_SIZE);
 			mxGraphComponent component = new mxGraphComponent(jgxAdapter);
@@ -466,7 +468,7 @@ public class StructureAdapter extends JApplet
 				g.addEdge(actual.start.name, actual.end.name);
 			}
 			//If it's a graph, get disconnected nodes and connect them 
-			if(structureType == 2 || structureType == 3) {
+			if(structureType == DIRECTED_GRAPH || structureType == UNDIRECTED_GRAPH) {
 				ArrayList<Edge<Nodo>> disconnected = disconnectedNodes();
 				switchEdgeColor(disconnected, "#EEEEEE");
 			}
@@ -494,7 +496,7 @@ public class StructureAdapter extends JApplet
 		removeEdgesAndNodes();
 		addEdgesAndNodes();
 		//If it's a graph, get the disconnected nodes and connect them with and invisible edge
-		if(structureType == 2 || structureType == 3) {
+		if(structureType == DIRECTED_GRAPH || structureType == UNDIRECTED_GRAPH) {
 			ArrayList<Edge<Nodo>> disconnected = disconnectedNodes();
 			switchEdgeColor(disconnected, "#EEEEEE");
 		}
@@ -575,7 +577,10 @@ public class StructureAdapter extends JApplet
 	 */
 	public void getNodeSet(String nodes) {
 		defaultColors();
+		//Nodes that are not in the structure nor the visualization
 		String notFound = "";
+		//Nodes that do not correspond in the structure and the visualization
+		String errorResult = "";
 
 		String search = "Búsqueda de nodo";
 		search = (nodes.split(",").length > 1) ? search + "s " + nodes +  " retornó " : search + " " + nodes + " retornó ";
@@ -583,12 +588,26 @@ public class StructureAdapter extends JApplet
 		ArrayList<String> nodeList = new ArrayList<String>();
 
 		String responseFromStructure = "";
+		String resultInStructure = null;
+		String resultInTool = null;
+
 		try {
 			for(String a : nodeSet) {
-				if(findNode(a) != null) {
-					String result = sm.findNode(a).toString();
-					responseFromStructure += result + ", ";
-					nodeList.add(result);
+				resultInStructure = sm.findNode(a) != null ? sm.findNode(a).toString() : null;
+				resultInTool = findNode(a) != null ? findNode(a).name : null;
+
+				if(resultInStructure != null && resultInTool != null) {
+					//Both results are the same
+					if(resultInStructure.equals(resultInTool)) {
+						responseFromStructure += resultInTool + ", ";
+						nodeList.add(resultInStructure);
+					}
+					//The results are different
+					else {
+						responseFromStructure += resultInStructure + ", ";
+						nodeList.add(resultInStructure);
+						errorResult += a + ", ";
+					}
 				}
 				else {
 					notFound += a + ", " ;
@@ -599,10 +618,14 @@ public class StructureAdapter extends JApplet
 				responseFromStructure = responseFromStructure.substring(0, responseFromStructure.length() - 2);
 				search += ":" + responseFromStructure;
 			}
-			else search += "vacío";
+			else search += "sin resultados";
 			infoPanelContent.setText(search);
 
 			switchNodeColor(nodeList, HIGHLIGHT_COLOR);
+			if(!errorResult.isEmpty()) {
+				String error = "Hubo errores al buscar nodo(s): " + errorResult.substring(0, errorResult.length() - 2);
+				JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE);
+			}
 			if(!notFound.isEmpty()) {
 				String error = "No hubo resultados para nodo(s): " + notFound.substring(0, notFound.length() - 2);
 				JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE);   // modificacion
@@ -624,34 +647,51 @@ public class StructureAdapter extends JApplet
 	public void getEdgesSet(String edges) {
 		defaultColors();
 
+		//Edges that are not in the structure nor the visualization
 		String notFound = "";
+		//Edges that do not correspond in the structure and the visualization
+		String errorResult = "";
 		String[] edgesSet = edges.toString().split(",");
 		String nodeSet = "";
-		String operation = (structureType == 0 || structureType == 1) ? "La búsqueda de conexiones " : "La búsqueda de arcos ";
+		String operation = (structureType == BINARY_TREE || structureType == LINKED_LIST) ? "La búsqueda de conexiones " : "La búsqueda de arcos ";
 		operation += edges + " retornó ";
 		String result = "";
 
 		ArrayList<Edge<Nodo>> edgesList = new ArrayList<Edge<Nodo>>();
 		try {
-			Edge searchResult = null;
-			Edge<Nodo> current = null;
+			//Result from the structure
+			Edge<Nodo> resultInStructure = null;
+			//Result from the visualization
+			Edge<Nodo> resultInVisualization = null; 
+
 			for (int i = 0; i < edgesSet.length; i++) {
 				if(edgesSet[i].contains(">")) {
 					String[] edgeContent = edgesSet[i].split(">");
-					if(findEdge(edgeContent[0], edgeContent[1]) != null) {
-						if(structureType == 3) {
-							if(sm.findEdge(edgeContent[0], edgeContent[1]) != null)
-								searchResult = sm.findEdge(edgeContent[0], edgeContent[1]);
-							else if(sm.findEdge(edgeContent[1], edgeContent[0]) != null)
-								searchResult = sm.findEdge(edgeContent[1], edgeContent[0]);
-
-							edgesList.add(findEdge(searchResult.end.toString(), searchResult.start.toString()));
+					resultInVisualization = findEdge(edgeContent[0], edgeContent[1]) != null ? findEdge(edgeContent[0], edgeContent[1]) : null;
+					Edge aux = sm.findEdge(edgeContent[0], edgeContent[1]) != null ? sm.findEdge(edgeContent[0], edgeContent[1]) : null;
+					resultInStructure  = aux != null ? new Edge<Nodo>(new Nodo(aux.start.toString()), new Nodo(aux.end.toString())) : null;
+					if(resultInStructure != null && resultInVisualization != null) {
+						//Both results are the same
+						if(resultInStructure .start.name.equals(resultInVisualization.start.name) &&
+								resultInStructure.end.name.equals(resultInVisualization.end.name)) {
+							edgesList.add(resultInStructure);
+							result += resultInStructure.start.name + ">" + resultInStructure.end.name + ", ";
+							nodeSet += edgeContent[0] + "," + edgeContent[1] + ",";
+							if(structureType == UNDIRECTED_GRAPH) {
+								//get the edge in the opposite way
+								aux = sm.findEdge(edgeContent[1], edgeContent[0]) != null ? sm.findEdge(edgeContent[1], edgeContent[0]) : null;
+								resultInStructure = aux != null ? new Edge<Nodo>(new Nodo(aux.start.toString()), new Nodo(aux.end.toString())) : null;
+								if(resultInStructure != null)
+									edgesList.add(resultInStructure);
+							}
 						}
-						else searchResult = sm.findEdge(edgeContent[0], edgeContent[1]);
-						current = findEdge(searchResult.start.toString(), searchResult.end.toString());
-						edgesList.add(current);
-						result += current.start.name + ">" + current.end.name + ", ";
-						nodeSet += edgeContent[0] + "," + edgeContent[1] + ",";
+						//The results are different
+						else {
+							edgesList.add(resultInStructure);
+							result += resultInStructure.start.name + ">" + resultInStructure.end.name + ", ";
+							nodeSet += edgeContent[0] + "," + edgeContent[1] + ",";
+							errorResult += resultInStructure.start.name + ">" + resultInStructure.end.name + ", ";
+						}
 					}
 					else notFound += edgeContent[0] + ">" + edgeContent[1] + ", ";
 				}
@@ -664,20 +704,26 @@ public class StructureAdapter extends JApplet
 				result = result.substring(0, result.length() - 2);
 				operation += ": " + result;
 			}
-			else operation += "vacío";
+			else operation += "sin resultados";
 			infoPanelContent.setText(operation);
+			if(!errorResult.isEmpty()) {
+				String error = "Hubo errores al buscar "; 
+				error += (structureType == BINARY_TREE || structureType == LINKED_LIST) ? "las conexiones: " : "los arcos: ";
+				error += errorResult.substring(0, errorResult.length() - 2);
+				JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE);
+			}
 			if(!notFound.isEmpty()) {
 				String error = "No hubo resultados para ";
-				error += (structureType == 0 || structureType == 1) ? "las conexiones: " : "los arcos: ";
+				error += (structureType == BINARY_TREE || structureType == LINKED_LIST) ? "las conexiones: " : "los arcos: ";
 				error += notFound.substring(0, notFound.length() - 2);
 				JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE);  // modificacion
 			}
 		}
 		catch(Exception e){
-			operation = (structureType == 0 || structureType == 1) ? "La búsqueda de las conexiones " : "La búsqueda de los arcos ";
+			operation = (structureType == BINARY_TREE || structureType == LINKED_LIST) ? "La búsqueda de las conexiones " : "La búsqueda de los arcos ";
 			operation += edges + " retornó error";
 			infoPanelContent.setText(operation);
-			String error = (structureType == 0 || structureType == 1) ? "La búsqueda de las conexiones " : "La búsqueda de los arcos ";
+			String error = (structureType == BINARY_TREE || structureType == LINKED_LIST) ? "La búsqueda de las conexiones " : "La búsqueda de los arcos ";
 			error += edges + " generó un error.";
 			JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE); 
 		}
@@ -697,19 +743,14 @@ public class StructureAdapter extends JApplet
 				ArrayList<Edge<Nodo>> edgesList = new ArrayList<Edge<Nodo>>();
 				ArrayList<String> nodeNeighbors = new ArrayList<String>();
 				ArrayList<Edge<Object>> neighborsFromStudent = sm.getNeighbors(node);
-				
+
 				for(Object current : neighborsFromStudent) {
 					Edge auxEdge = (Edge) current;
 					if(findNode(auxEdge.start.toString()) != null && findNode(auxEdge.end.toString()) != null) {
 						Edge<Nodo> edge = new Edge(findNode(auxEdge.start.toString()),findNode(auxEdge.end.toString() ));
 						edgesList.add(edge);
-						// Correccion: No incluir el nodo origen de la busqueda como adyacente de El mismo
-						// Inicio Bloque
-//						if(structureType == 1)
-//							nodeNeighbors.add(findNode(auxEdge.start.toString()).name);
-						// Fin Bloque
 						nodeNeighbors.add(findNode(auxEdge.end.toString()).name);
-						if(structureType == 3) {
+						if(structureType == UNDIRECTED_GRAPH) {
 							edge = new Edge(findNode(auxEdge.end.toString()), findNode(auxEdge.start.toString()));
 							edgesList.add(edge);
 						}
@@ -717,28 +758,22 @@ public class StructureAdapter extends JApplet
 				}
 
 				if(!nodeNeighbors.isEmpty()) {
-					if(structureType != 1) {
+					if(structureType != LINKED_LIST) {
 						String results = "";
 						for(String nodeNeighbor : nodeNeighbors)
-							// Correccion: No verificar contenencia de identificadores con Strings
-							// Un String corto (por ejemplo "8"), puede estar en un String largo (por ejemplo "85")
-							// if(!results.contains(nodeNeighbor))
-								results += nodeNeighbor + ", ";
+							results += nodeNeighbor + ", ";
 
 						results = results.substring(0, results.length() - 2);
 						operation += results;
 					}
 					else {
 						for(String nodeNeighbor : nodeNeighbors) 
-							// Correccion: No verificar contenencia de identificadores con Strings
-							// Un String corto (por ejemplo "8"), puede estar en un String largo (por ejemplo "85")
-							// if(!operation.contains(nodeNeighbor))
-								operation += nodeNeighbor + ", ";
+							operation += nodeNeighbor + ", ";
 
 						operation = operation.substring(0, operation.length() - 2);
 					}
 				}
-				else operation = "Adyacentes del nodo " + node + " retornó vacío";
+				else operation = "Adyacentes del nodo " + node + " retornó sin resultados";
 				infoPanelContent.setText(operation);
 
 				switchEdgeColor(edgesList, EDGES_HIGHLIGHT);
@@ -764,7 +799,7 @@ public class StructureAdapter extends JApplet
 
 	}
 
-	
+
 	/**
 	 * find an edge in the edges list
 	 * @param nodeStart Tag associated to the starting node in the edge
@@ -785,7 +820,7 @@ public class StructureAdapter extends JApplet
 		return null;
 	}
 
-	
+
 	/**
 	 * Add a node to the structure
 	 * @param node Tag associated to the node that will be created through the StandardMethods class
@@ -809,7 +844,7 @@ public class StructureAdapter extends JApplet
 				edges = createEdges() == null ? createEdgesForList() : createEdges();
 				addEdgesAndNodes();	
 				//If it's a graph, get disconnected nodes and connect them 
-				if(structureType == 2 || structureType == 3) {
+				if(structureType == DIRECTED_GRAPH || structureType == UNDIRECTED_GRAPH) {
 					ArrayList<Edge<Nodo>> disconnected = disconnectedNodes();
 					switchEdgeColor(disconnected, "#EEEEEE");
 				}
@@ -829,12 +864,12 @@ public class StructureAdapter extends JApplet
 				switchNodeColor(nodeList, HIGHLIGHT_COLOR);
 				operation += " completado";
 				operation += "\nCantidad de nodos: " + nodos.size();
-				if(structureType == 0 || structureType == 1) {
+				if(structureType == BINARY_TREE || structureType == LINKED_LIST) {
 					operation += "\nCantidad de conexiones: ";
 				}
 				else
 					operation += "\nCantidad de arcos: ";
-				operation = structureType == 3 ? operation + edges.size()/2 : operation + edges.size();
+				operation = structureType == DIRECTED_GRAPH ? operation + edges.size()/2 : operation + edges.size();
 				infoPanelContent.setText(operation);
 			}
 		catch(Exception e) {
@@ -845,7 +880,7 @@ public class StructureAdapter extends JApplet
 		}
 	}
 
-	
+
 	/**
 	 * Clears the visualization by removing all the edges and nodes associated
 	 */
@@ -859,7 +894,7 @@ public class StructureAdapter extends JApplet
 				g.removeVertex(nodo.name);
 	}
 
-	
+
 	/**
 	 * Adds the nodes and edges in the lists to the structure
 	 */
@@ -876,7 +911,7 @@ public class StructureAdapter extends JApplet
 		}
 	}
 
-	
+
 	/**
 	 * Delete the node specified
 	 * @param node String associated to the node that's going to be deleted from the structure through the StandardMethods class
@@ -901,7 +936,7 @@ public class StructureAdapter extends JApplet
 				edges = createEdges() == null ? createEdgesForList() : createEdges();
 				addEdgesAndNodes();	
 				//If it's a graph, get disconnected nodes and connect them 
-				if(structureType == 2 || structureType == 3) {
+				if(structureType == DIRECTED_GRAPH || structureType == UNDIRECTED_GRAPH) {
 					ArrayList<Edge<Nodo>> disconnected = disconnectedNodes();
 					switchEdgeColor(disconnected, "#EEEEEE");
 				}
@@ -917,12 +952,12 @@ public class StructureAdapter extends JApplet
 				if(findNode(node) == null) {
 					operation += " completado";
 					operation += "\nCantidad de nodos: " + nodos.size();
-					if(structureType == 0 || structureType == 1) {
+					if(structureType == BINARY_TREE || structureType == LINKED_LIST) {
 						operation += "\nCantidad de conexiones: ";
 					}
 					else
 						operation += "\nCantidad de arcos: ";
-					operation = structureType == 3 ? operation + edges.size()/2 : operation + edges.size();
+					operation = structureType == DIRECTED_GRAPH ? operation + edges.size()/2 : operation + edges.size();
 					infoPanelContent.setText(operation);
 					String message = "El nodo " + node + " fue eliminado.";
 					JOptionPane.showMessageDialog(frame, message, "Advertencia", JOptionPane.INFORMATION_MESSAGE);
@@ -930,12 +965,12 @@ public class StructureAdapter extends JApplet
 				else {
 					operation += " no se completó";
 					operation += "\nCantidad de nodos: " + nodos.size();
-					if(structureType == 0 || structureType == 1) {
+					if(structureType == BINARY_TREE || structureType == LINKED_LIST) {
 						operation += "\nCantidad de conexiones: ";
 					}
 					else
 						operation += "\nCantidad de arcos: ";
-					operation = structureType == 3 ? operation + edges.size()/2 : operation + edges.size();
+					operation = structureType == UNDIRECTED_GRAPH ? operation + edges.size()/2 : operation + edges.size();
 					infoPanelContent.setText(operation);
 					String message = "El nodo " + node + " no fue eliminado.";
 					JOptionPane.showMessageDialog(frame, message, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
@@ -945,7 +980,7 @@ public class StructureAdapter extends JApplet
 			operation += " no se completó";
 			operation += "\nCantidad de nodos: " + nodos.size();
 			operation += "\nCantidad de arcos: ";
-			operation = structureType == 3 ? operation + edges.size()/2 : operation + edges.size();
+			operation = structureType == UNDIRECTED_GRAPH ? operation + edges.size()/2 : operation + edges.size();
 			infoPanelContent.setText(operation);
 			String message = "El nodo " + node + " no se pudo eliminar.";
 			JOptionPane.showMessageDialog(frame, message, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
@@ -971,7 +1006,7 @@ public class StructureAdapter extends JApplet
 				for (int i = 0; i < nodeList.size()-1; i++) {
 					if(findEdge(nodeList.get(i).toString(), nodeList.get(i+1).toString()) != null) {
 						edgesInPath.add(findEdge(nodeList.get(i).toString(), nodeList.get(i+1).toString()));
-						if(structureType == 3) {
+						if(structureType == UNDIRECTED_GRAPH) {
 							edgesInPath.add(findEdge(nodeList.get(i + 1).toString(), nodeList.get(i).toString()));
 						}
 					}
@@ -1011,7 +1046,7 @@ public class StructureAdapter extends JApplet
 
 			if(!message.isEmpty()){
 				String error = "";
-				error = (structureType == 0 || structureType == 1) ? "Las conexiones" : "Los arcos";
+				error = (structureType == BINARY_TREE || structureType == LINKED_LIST) ? "Las conexiones" : "Los arcos";
 				error += message + " no completan el camino.";
 				JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
 			}
@@ -1025,7 +1060,7 @@ public class StructureAdapter extends JApplet
 
 	}
 
-	
+
 	/**
 	 * Adds edges to the structure through the StandardMethods class
 	 * @param toAdd String 
@@ -1034,13 +1069,20 @@ public class StructureAdapter extends JApplet
 	public void addEdge(String toAdd) {
 		defaultColors();
 		String notAdded = "";
+		String errorResult = "";
 		String[] edgesSet = toAdd.toString().split(",");
-		ArrayList<Edge> edgesList = new ArrayList<Edge>();
+		ArrayList<Edge<Nodo>> edgesList = new ArrayList<Edge<Nodo>>();
 		ArrayList<String> nodesList = new ArrayList<String>();
 
 		String operation = "Agregar arco";
 		operation = (edgesSet.length > 1) ? operation + "s " : operation + " ";
 		operation += toAdd;
+
+		//status of the operation from the structure
+		boolean opStatus = false;
+
+		//edge added
+		Edge<Nodo> newEdge = null;
 
 		for(String a : edgesSet) {
 			if(a.contains(">")) {
@@ -1048,37 +1090,73 @@ public class StructureAdapter extends JApplet
 				//If the any of the nodes don't exist
 				if(findNode(currentEdge[0]) == null || findNode(currentEdge[1]) == null)
 					notAdded += currentEdge[0] + ">" + currentEdge[1] + ", ";
-				//If the edge already exists it's not added again
-				else if(sm.findEdge(currentEdge[0], currentEdge[1]) != null) 
-					notAdded += currentEdge[0] + ">" + currentEdge[1] + ", ";
 				else {
-					sm.addEdge(currentEdge[0], currentEdge[1]);
-					if(sm.findEdge(currentEdge[0], currentEdge[1]) != null) {
-						Edge found = (Edge) sm.findEdge(currentEdge[0], currentEdge[1]);
-						edgesList.add(found);
+					opStatus = sm.addEdge(currentEdge[0], currentEdge[1]);
+					Edge fromStructure = sm.findEdge(currentEdge[0], currentEdge[1]);
+					//Verify if the edge was in fact added
+					if(opStatus) {
+						//Check for the opposite edge if it's and undirected graph
+						if(structureType == UNDIRECTED_GRAPH) {
+							if(sm.findEdge(currentEdge[1], currentEdge[0]) == null) {
+								notAdded += currentEdge[1] + ">" + currentEdge[0] + ", ";
+								errorResult += currentEdge[1] + ">" + currentEdge[0] + ", ";
+							}
+							else {
+								newEdge = new Edge<Nodo>(new Nodo(fromStructure.end.toString()), new Nodo(fromStructure.start.toString()));
+								edgesList.add(newEdge);
+								nodesList.add(currentEdge[0]);
+								nodesList.add(currentEdge[1]);
+							}
+						}
+						if(sm.findEdge(currentEdge[0], currentEdge[1]) == null) {
+							notAdded += a + ", ";
+							errorResult += a + ", ";
+						}
+						else {
+							newEdge = new Edge<Nodo>(new Nodo(fromStructure.start.toString()), new Nodo(fromStructure.end.toString()));
+							edgesList.add(newEdge);
+							nodesList.add(currentEdge[0]);
+							nodesList.add(currentEdge[1]);
+						}
 					}
-					else notAdded += currentEdge[0] + ">" + currentEdge[1] + ", ";
-					nodesList.add(findNode(currentEdge[0]).name);
-					nodesList.add(findNode(currentEdge[1]).name);
+					//Verify still if it was added
+					else {
+						//Check for the opposite edge if it's and undirected graph
+						if(structureType == UNDIRECTED_GRAPH) {
+							if(sm.findEdge(currentEdge[1], currentEdge[0]) != null) {
+								notAdded += currentEdge[1] + ">" + currentEdge[0] + ", ";
+								errorResult += currentEdge[1] + ">" + currentEdge[0] + ", ";
+								newEdge = new Edge<Nodo>(new Nodo(fromStructure.end.toString()), new Nodo(fromStructure.start.toString()));
+								edgesList.add(newEdge);
+								nodesList.add(currentEdge[0]);
+								nodesList.add(currentEdge[1]);
+							}
+							else {
+								newEdge = new Edge<Nodo>(new Nodo(fromStructure.end.toString()), new Nodo(fromStructure.start.toString()));
+								edgesList.add(newEdge);
+							}
+						}
+						if(sm.findEdge(currentEdge[0], currentEdge[1]) != null) {
+							errorResult += a + ", ";
+							newEdge = new Edge<Nodo>(new Nodo(fromStructure.start.toString()), new Nodo(fromStructure.end.toString()));
+							edgesList.add(newEdge);
+							nodesList.add(currentEdge[0]);
+							nodesList.add(currentEdge[1]);
+						}
+						else notAdded += a + ", ";
+					}
 				}
 			}
 			else notAdded += a + ", ";
 		}
-		ArrayList<Edge<Nodo>> edgesToColor = new ArrayList<Edge<Nodo>>();
+
 		removeEdgesAndNodes();
 		nodos = createNodes();
-		edges = (structureType == 1) ? createEdgesForList() : createEdges();
+		edges = (structureType == LINKED_LIST) ? createEdgesForList() : createEdges();
 		addEdgesAndNodes();
-		for(Edge current : edgesList) {
-			if(structureType == 3) {
-				edgesToColor.add(findEdge(current.end.toString(), current.start.toString()));
-			}
-			if(findEdge(current.start.toString(), current.end.toString()) != null)
-				edgesToColor.add(findEdge(current.start.toString(), current.end.toString()));
-			else notAdded += current.start.toString() + ">" + current.end.toString();
-		}
+
 		//If it's a graph, get disconnected nodes and connect them 
-		if(structureType == 2 || structureType == 3) {
+		if(structureType == DIRECTED_GRAPH || structureType == UNDIRECTED_GRAPH) {
 			ArrayList<Edge<Nodo>> disconnected = disconnectedNodes();
 			switchEdgeColor(disconnected, "#EEEEEE");
 		}
@@ -1092,14 +1170,19 @@ public class StructureAdapter extends JApplet
 		}
 
 		switchNodeColor(nodesList, HIGHLIGHT_COLOR);
-		switchEdgeColor(edgesToColor, EDGES_HIGHLIGHT);
+		switchEdgeColor(edgesList, EDGES_HIGHLIGHT);
 
-		if(!edgesList.isEmpty()) operation += " completado";
-		else operation += " no se completó";
+		operation += !errorResult.isEmpty() ? " completado con errores" : " completado";
 		operation += "\nCantidad de nodos: " + nodos.size();
 		operation += "\nCantidad de arcos: ";
-		operation = structureType == 3 ? operation + edges.size()/2 : operation + edges.size();
+		operation = structureType == UNDIRECTED_GRAPH ? operation + edges.size()/2 : operation + edges.size();
 		infoPanelContent.setText(operation);
+
+		if(!errorResult.isEmpty()) {
+			String error = "Hubo errores al agregar los arcos: "; 
+			error += errorResult.substring(0, errorResult.length() - 2);
+			JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE);
+		}
 
 		if(!notAdded.isEmpty()){	
 			notAdded = notAdded.substring(0, notAdded.length() - 2);
@@ -1133,7 +1216,7 @@ public class StructureAdapter extends JApplet
 		}
 	}
 
-	
+
 	/**
 	 * Draws the node set fetched from the StandardMethods class
 	 */
@@ -1181,12 +1264,12 @@ public class StructureAdapter extends JApplet
 			if(nodos.isEmpty()) message += " vacía";
 			else {
 				message += "\nCantidad de nodos: " + nodos.size();
-				if(structureType == 0 || structureType == 1) {
+				if(structureType == BINARY_TREE || structureType == LINKED_LIST) {
 					message += "\nCantidad de conexiones: ";
 				}
 				else
 					message += "\nCantidad de arcos: ";
-				message = structureType == 3 ? message + edges.size()/2 : message + edges.size();
+				message = structureType == UNDIRECTED_GRAPH ? message + edges.size()/2 : message + edges.size();
 			}
 			infoPanelContent.setText(message);
 		}
