@@ -1,2 +1,11 @@
 /classes/
+/.classpath
+/.gitignore
+/.metadata/
+/.project
+/.settings/
+/docs/
+/estructuras jar/
+/jar_files/
+/lib/
 /src/
