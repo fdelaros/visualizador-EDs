@@ -31,7 +31,6 @@ import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 
 import modelo.complementos.*;
-import modelo.estructuras.*;
 
 
 /**

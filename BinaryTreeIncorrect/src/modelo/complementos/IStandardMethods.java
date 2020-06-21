@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * Se entiende como conexión a la relación entre un par de nodos para los árboles y listas encadenadas.
  * @author Diana Marcela Gutiérrez
  *Los nodos de la estructura deben implementar un método toString() que retorne el valor que aparecerá en la etiqueta (única) que representa dicho nodo.
- * @param <K>
+ * @param K tipo para clase que define identificadores unicos
  */
 public interface IStandardMethods<K> {
 
