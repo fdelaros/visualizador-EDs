@@ -850,10 +850,6 @@ public class StructureAdapter extends JApplet
 				if(sm.findNode(node) != null) {
 					errorAdding = true;
 				}
-				//It was not added
-				else {
-					errorAdding = true;
-				}
 			}
 			//Delete and refill current structure
 			removeEdgesAndNodes();
@@ -976,13 +972,14 @@ public class StructureAdapter extends JApplet
 					layout.execute(jgxAdapter.getDefaultParent());
 				}
 
-				//If the node was deleted
+				//If the node was supposedly deleted
 				if(deleteStatus) {
 					//Check if it was in fact deleted
 					if(sm.findNode(node) != null) {
 						errorDeleting = true;
 					}
 				}
+				//The node wasn't supposedly deleted
 				else {
 					//Check if it was not deleted
 					if(sm.findNode(node) == null) {
