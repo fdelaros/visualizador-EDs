@@ -166,7 +166,7 @@ public class LinkedList {
 		return nodeSet;
 	}
 
-	public Node addNode(LinkedList list, String data) {
+	public Boolean addNode(LinkedList list, String data) {
 		// Create a new node with given data
 		Node new_node = new Node(data);
 		new_node.next = null;
@@ -189,14 +189,14 @@ public class LinkedList {
 			}
 		}
 
-		// Return the node
-		return new_node;
+		return true;
 	}
-	public Node delete(LinkedList list, String data) {
+	
+	public Boolean delete(LinkedList list, String data) {
 		// Create a new node with given data
 		Node delete = getNode(list, data);
 
-		return delete;
+		return true;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

@@ -251,9 +251,13 @@ public class BinaryTree
 		return arcos;
 	}
 
-	public void deleteNode(String deleteTag) {
+	public Boolean deleteNode(String deleteTag) {
 		NodoArbol nodo = getNode(deleteTag);
 		nodo.deleteNode();
+		
+		if(getNode(deleteTag) == null) return true;
+		
+		return false;
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -288,13 +292,15 @@ public class BinaryTree
 		return result;
 	}
 
-	public void insertRoot(String num) {
+	public Boolean insertRoot(String num) {
 		NodoArbol nuevo = new NodoArbol(num);
 		if(raiz.nododerecho != null) nuevo.nododerecho = raiz.nododerecho;
 		if(raiz.nodoizquierdo != null) nuevo.nodoizquierdo = raiz.nodoizquierdo;
 		vertices.remove(raiz);
 		vertices.add(nuevo);
 		raiz = nuevo;
+		
+		return true;
 	}
 
 	public static void main(String[] args) {

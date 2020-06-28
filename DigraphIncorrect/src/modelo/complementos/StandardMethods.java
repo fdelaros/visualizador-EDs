@@ -12,17 +12,18 @@ public class StandardMethods implements IStandardMethods<Object>{
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void createStructure() {
-		graph = new Digraph();
-		int graphSize = size;
-		graph = new Digraph(graphSize);
-		for (int i = 0; i < graphSize; i++) {
+		if ( size == 0)
+			graph = new Digraph();
+		else
+			graph = new Digraph(size);
+		for (int i = 0; i < size; i++) {
 			graph.addVertex(i, "nodo numero " + i);
 		}
 
-		for(int i = 0; i < graphSize; i++) {
+		for(int i = 0; i < size; i++) {
 			int numEdges = (int) Math.floor(Math.random() * 4);
 			for (int j = 0; j < numEdges; j++) {
-				int destination = (int) Math.floor(Math.random() * graphSize);
+				int destination = (int) Math.floor(Math.random() * size);
 				double weight = Math.floor(Math.random() * 20);
 				if(graph.findEdge(i, destination) == null) {
 					graph.addEdge(i, destination, weight);
@@ -86,12 +87,12 @@ public class StandardMethods implements IStandardMethods<Object>{
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void addNode(String tag) {
-		graph.auxAddVertex(Integer.parseInt(tag), "nodo número " + Integer.parseInt(tag));	
+	public Boolean addNode(String tag) {
+		return graph.auxAddVertex(Integer.parseInt(tag), "nodo número " + Integer.parseInt(tag));	
 	}
 
-	public void deleteNode(String tag) {
-
+	public Boolean deleteNode(String tag) {
+		return true;
 	}
 
 

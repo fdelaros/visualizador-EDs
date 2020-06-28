@@ -74,13 +74,13 @@ public interface IStandardMethods<K> {
 	 * Adición de un nuevo nodo
 	 * @param tag etiqueta asociada al nodo que se va a agregar
 	 */
-	void addNode(String tag);
+	Boolean addNode(String tag);
 
 	/**
 	 * Eliminación de un nodo 
 	 * @param tag etiqueta asociada al nodo a eliminar
 	 */
-	void deleteNode(String tag);
+	Boolean deleteNode(String tag);
 
 	ArrayList<K> getPath();
 
@@ -94,7 +94,7 @@ public interface IStandardMethods<K> {
 	int structureType();
 
 	/**
-	 * Adición de un arco a la estructura
+	 * Adición de un arco a la estructura si los nodos inicial y final existen
 	 * Retornar false para árbol binario ordenado o lista encadenada
 	 * @param startNode etiqueta asociada al nodo inicial
 	 * @param endNode etiqueta asociada al nodo final

@@ -158,7 +158,10 @@ public class LinkedList {
 		return nodeSet;
 	}
 
-	public Node addNode(LinkedList list, String data) {
+	public Boolean addNode(LinkedList list, String data) {
+		//The node already exists
+		if(getNode(list, data) != null)
+			return false;
 		// Create a new node with given data
 		Node new_node = new Node(data);
 		new_node.next = null;
@@ -179,29 +182,36 @@ public class LinkedList {
 			last.next = new_node;
 		}
 
-		// Return the node
-		return new_node;
+		if(getNode(list, data) != null)
+			return true;
+
+		return false;
 	}
-	// Warning: revisar que pasa si el dato No se encuentra. Posible NullPointerException
-	public Node delete(LinkedList list, String data) {
+
+	public Boolean delete(LinkedList list, String data) {
+		//The node doesn't exist
+		if(getNode(list, data) == null)
+			return false;
 		// Create a new node with given data
 		Node delete = getNode(list, data);
-		if(delete != null) {
-			if(list.head.data.equals(delete.data)) {
-				list.head = delete.next;
-			}
-			else {
-				Node previous = null;
-				Node current = list.head;
-				while(current != delete) {
-					previous = current;
-					current = current.next;
-				}
-				previous.next = current.next;
-			}
-			return delete;
+
+		if(list.head.data.equals(delete.data)) {
+			list.head = delete.next;
 		}
-		else return null;
+		else {
+			Node previous = null;
+			Node current = list.head;
+			while(current != delete) {
+				previous = current;
+				current = current.next;
+			}
+			previous.next = current.next;
+		}
+		//Verify if the node was deleted
+		if(getNode(list, data) == null) return true;
+	
+		return false;
+
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

@@ -306,9 +306,13 @@ public class Digraph<K, V> implements IGraph<K, V> {
 	}
 
 	@SuppressWarnings("unused")
-	public void auxAddVertex(K idVertex, V infoVertex) {
+	public Boolean auxAddVertex(K idVertex, V infoVertex) {
+		if(getNode(idVertex) != null) {
+			return false;
+		}
 		Vertice nuevoNodo = new Vertice( infoVertex, idVertex );
 		nVertices++;
+		return true;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

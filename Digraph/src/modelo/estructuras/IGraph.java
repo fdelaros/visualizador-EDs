@@ -6,9 +6,9 @@ public interface IGraph<K,V>extends Iterable<K>{
 
 	int E();
 
-	void addVertex( K idVertex, V infoVertex);
+	Boolean addVertex( K idVertex, V infoVertex);
 
-	boolean addEdge(K idVertexIni, K idVertexFin, Double infoArc );
+	Boolean addEdge(K idVertexIni, K idVertexFin, Double infoArc );
 
 	V getInfoVertex(K idVertex);
 

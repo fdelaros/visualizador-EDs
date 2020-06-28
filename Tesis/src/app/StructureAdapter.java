@@ -41,7 +41,7 @@ import modelo.complementos.*;
 public class StructureAdapter extends JApplet
 {
 	private static final long serialVersionUID = 2202072534703043194L;
-//	private static final Dimension DEFAULT_SIZE = new Dimension(1366, 768);
+	//	private static final Dimension DEFAULT_SIZE = new Dimension(1366, 768);
 	private static final Dimension DEFAULT_SIZE = new Dimension(1200, 700);
 
 	//list with the nodes
@@ -736,7 +736,7 @@ public class StructureAdapter extends JApplet
 
 
 	/**
-	 * Highlights the main node and the neighbors
+	 * Highlights the main node and the neighbors, if the main node exists
 	 * @param node Tag that corresponds to the node which neighbors are to be found and fetched from the StandardMethods class
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -827,56 +827,76 @@ public class StructureAdapter extends JApplet
 
 
 	/**
-	 * Add a node to the structure
+	 * Add a node to the structure if it doesn't exist
 	 * @param node Tag associated to the node that will be created through the StandardMethods class
 	 */
 	@SuppressWarnings("rawtypes")
 	public void addNodeIn(String node) {
 		defaultColors();
 		String operation = "Agregar nodo " + node;
-		if(findNode(node) != null) {
-			operation = " El nodo " + node + " ya está en la estructura";
-			infoPanelContent.setText(operation);
-			String found = "El nodo " + node + " ya existe en la estructura";
-			JOptionPane.showMessageDialog(frame, found, "Advertencia", JOptionPane.INFORMATION_MESSAGE);
-		}
-		else
-			try {
-				sm.addNode(node);
-				//Delete and refill current structure
-				removeEdgesAndNodes();
-				nodos = createNodes();
-				edges = createEdges() == null ? createEdgesForList() : createEdges();
-				addEdgesAndNodes();	
-				//If it's a graph, get disconnected nodes and connect them 
-				if(structureType == DIRECTED_GRAPH || structureType == UNDIRECTED_GRAPH) {
-					ArrayList<Edge<Nodo>> disconnected = disconnectedNodes();
-					switchEdgeColor(disconnected, "#EEEEEE");
-				}
-				if(sm.isLineal() == null || !sm.isLineal()) {
-					mxFastOrganicLayout layout = new  mxFastOrganicLayout(jgxAdapter);
-					layout.execute(jgxAdapter.getDefaultParent());
-				}
-				else {
-					mxHierarchicalLayout layout = new mxHierarchicalLayout(jgxAdapter);
-					layout.execute(jgxAdapter.getDefaultParent());
-				}
+		Boolean errorAdding = false;
 
+		try {
+			Boolean addStatus = sm.addNode(node);
+			//Check if the node was added
+			if(addStatus) {
+				//Operation returned the node as added but it wasn't
+				if(sm.findNode(node) == null) {
+					errorAdding = true;
+				}
+			}
+			else {
+				//operation returned the node as not added but it was
+				if(sm.findNode(node) != null) {
+					errorAdding = true;
+				}
+				//It was not added
+				else {
+					errorAdding = true;
+				}
+			}
+			//Delete and refill current structure
+			removeEdgesAndNodes();
+			nodos = createNodes();
+			edges = structureType == LINKED_LIST ? createEdgesForList() : createEdges(); 
+			addEdgesAndNodes();	
+			//If it's a graph, get disconnected nodes and connect them 
+			if(structureType == DIRECTED_GRAPH || structureType == UNDIRECTED_GRAPH) {
+				ArrayList<Edge<Nodo>> disconnected = disconnectedNodes();
+				switchEdgeColor(disconnected, "#EEEEEE");
+			}
+			if(sm.isLineal() == null || !sm.isLineal()) {
+				mxFastOrganicLayout layout = new  mxFastOrganicLayout(jgxAdapter);
+				layout.execute(jgxAdapter.getDefaultParent());
+			}
+			else {
+				mxHierarchicalLayout layout = new mxHierarchicalLayout(jgxAdapter);
+				layout.execute(jgxAdapter.getDefaultParent());
+			}
+			//If there were no errors adding the node, color it
+			if(!errorAdding) {
 				//Color new node
 				ArrayList<String> nodeList = new ArrayList<String>();
 				nodeList.add(findNode(node).name);
 
 				switchNodeColor(nodeList, HIGHLIGHT_COLOR);
-				operation += " completado";
-				operation += "\nCantidad de nodos: " + nodos.size();
-				if(structureType == BINARY_TREE || structureType == LINKED_LIST) {
-					operation += "\nCantidad de conexiones: ";
-				}
-				else
-					operation += "\nCantidad de arcos: ";
-				operation = structureType == DIRECTED_GRAPH ? operation + edges.size()/2 : operation + edges.size();
-				infoPanelContent.setText(operation);
 			}
+
+			operation += errorAdding == false ? " completado" : " completado con errores";
+			operation += "\nCantidad de nodos: " + nodos.size();
+			if(structureType == BINARY_TREE || structureType == LINKED_LIST) {
+				operation += "\nCantidad de conexiones: ";
+			}
+			else
+				operation += "\nCantidad de arcos: ";
+			operation = structureType == UNDIRECTED_GRAPH ? operation + edges.size()/2 : operation + edges.size();
+			infoPanelContent.setText(operation);
+
+			if(errorAdding) {
+				String error = "Hubo errores al agregar el nodo: " + node; 
+				JOptionPane.showMessageDialog(frame, error, "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
 		catch(Exception e) {
 			System.out.println("Exception:" + e.getMessage());
 			operation += " no se completó";
@@ -919,13 +939,14 @@ public class StructureAdapter extends JApplet
 
 
 	/**
-	 * Delete the node specified
+	 * Delete the node specified, it it exists in the structure.
 	 * @param node String associated to the node that's going to be deleted from the structure through the StandardMethods class
 	 */
 	@SuppressWarnings("rawtypes")
 	public void deleteNode(String node) {
 		defaultColors();
 		String operation = "Eliminar nodo " + node;
+		Boolean errorDeleting = false;
 		if(findNode(node) == null) {
 			operation += " no se completó";
 			infoPanelContent.setText(operation);
@@ -935,11 +956,11 @@ public class StructureAdapter extends JApplet
 		else
 			try{
 				//update node list
-				sm.deleteNode(node);
+				Boolean deleteStatus = sm.deleteNode(node);
 				//Delete and refill current structure
 				removeEdgesAndNodes();
 				nodos = createNodes();
-				edges = createEdges() == null ? createEdgesForList() : createEdges();
+				edges = structureType == LINKED_LIST ? createEdgesForList() : createEdges();
 				addEdgesAndNodes();	
 				//If it's a graph, get disconnected nodes and connect them 
 				if(structureType == DIRECTED_GRAPH || structureType == UNDIRECTED_GRAPH) {
@@ -955,21 +976,52 @@ public class StructureAdapter extends JApplet
 					layout.execute(jgxAdapter.getDefaultParent());
 				}
 
-				if(findNode(node) == null) {
-					operation += " completado";
-					operation += "\nCantidad de nodos: " + nodos.size();
-					if(structureType == BINARY_TREE || structureType == LINKED_LIST) {
-						operation += "\nCantidad de conexiones: ";
+				//If the node was deleted
+				if(deleteStatus) {
+					//Check if it was in fact deleted
+					if(sm.findNode(node) != null) {
+						errorDeleting = true;
 					}
-					else
-						operation += "\nCantidad de arcos: ";
-					operation = structureType == DIRECTED_GRAPH ? operation + edges.size()/2 : operation + edges.size();
-					infoPanelContent.setText(operation);
-					String message = "El nodo " + node + " fue eliminado.";
-					JOptionPane.showMessageDialog(frame, message, "Advertencia", JOptionPane.INFORMATION_MESSAGE);
 				}
 				else {
-					operation += " no se completó";
+					//Check if it was not deleted
+					if(sm.findNode(node) == null) {
+						errorDeleting = true;
+					}
+				}
+
+				//Deleting process didn't have any inconsistencies 
+				if(!errorDeleting) {
+					if(findNode(node) == null) {
+						operation += " completado";
+						operation += "\nCantidad de nodos: " + nodos.size();
+						if(structureType == BINARY_TREE || structureType == LINKED_LIST) {
+							operation += "\nCantidad de conexiones: ";
+						}
+						else
+							operation += "\nCantidad de arcos: ";
+						operation = structureType == UNDIRECTED_GRAPH ? operation + edges.size()/2 : operation + edges.size();
+						infoPanelContent.setText(operation);
+						String message = "El nodo " + node + " fue eliminado.";
+						JOptionPane.showMessageDialog(frame, message, "Advertencia", JOptionPane.INFORMATION_MESSAGE);
+					}
+					else {
+						operation += " no se completó";
+						operation += "\nCantidad de nodos: " + nodos.size();
+						if(structureType == BINARY_TREE || structureType == LINKED_LIST) {
+							operation += "\nCantidad de conexiones: ";
+						}
+						else
+							operation += "\nCantidad de arcos: ";
+						operation = structureType == UNDIRECTED_GRAPH ? operation + edges.size()/2 : operation + edges.size();
+						infoPanelContent.setText(operation);
+						String message = "El nodo " + node + " no fue eliminado.";
+						JOptionPane.showMessageDialog(frame, message, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
+					}
+				}
+				//Process had errors
+				else {
+					operation += " completado con errores";
 					operation += "\nCantidad de nodos: " + nodos.size();
 					if(structureType == BINARY_TREE || structureType == LINKED_LIST) {
 						operation += "\nCantidad de conexiones: ";
@@ -978,8 +1030,8 @@ public class StructureAdapter extends JApplet
 						operation += "\nCantidad de arcos: ";
 					operation = structureType == UNDIRECTED_GRAPH ? operation + edges.size()/2 : operation + edges.size();
 					infoPanelContent.setText(operation);
-					String message = "El nodo " + node + " no fue eliminado.";
-					JOptionPane.showMessageDialog(frame, message, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
+					String message = "Hubo errores al eliminar el nodo " + node;
+					JOptionPane.showMessageDialog(frame, message, "Error", JOptionPane.ERROR_MESSAGE); 
 				}
 			}
 		catch(Exception e){
@@ -1052,7 +1104,7 @@ public class StructureAdapter extends JApplet
 
 			if(!message.isEmpty()){
 				String error = "";
-				error = (structureType == BINARY_TREE || structureType == LINKED_LIST) ? "Las conexiones" : "Los arcos";
+				error = (structureType == BINARY_TREE || structureType == LINKED_LIST) ? "Las conexiones " : "Los arcos ";
 				error += message + " no completan el camino.";
 				JOptionPane.showMessageDialog(frame, error, "Advertencia", JOptionPane.INFORMATION_MESSAGE); 
 			}
@@ -1068,7 +1120,7 @@ public class StructureAdapter extends JApplet
 
 
 	/**
-	 * Adds edges to the structure through the StandardMethods class
+	 * Adds edges to the structure through the StandardMethods class, if the starting and ending nodes exist
 	 * @param toAdd String 
 	 */
 	@SuppressWarnings("rawtypes")
@@ -1099,26 +1151,29 @@ public class StructureAdapter extends JApplet
 				else {
 					opStatus = sm.addEdge(currentEdge[0], currentEdge[1]);
 					Edge fromStructure = sm.findEdge(currentEdge[0], currentEdge[1]);
+
 					//Verify if the edge was in fact added
 					if(opStatus) {
-						//Check for the opposite edge if it's and undirected graph
-						if(structureType == UNDIRECTED_GRAPH) {
-							if(sm.findEdge(currentEdge[1], currentEdge[0]) == null) {
-								notAdded += currentEdge[1] + ">" + currentEdge[0] + ", ";
-								errorResult += currentEdge[1] + ">" + currentEdge[0] + ", ";
-							}
-							else {
-								newEdge = new Edge<Nodo>(new Nodo(fromStructure.end.toString()), new Nodo(fromStructure.start.toString()));
-								edgesList.add(newEdge);
-								nodesList.add(currentEdge[0]);
-								nodesList.add(currentEdge[1]);
-							}
-						}
-						if(sm.findEdge(currentEdge[0], currentEdge[1]) == null) {
+						//The edge doesn't exist
+						if(fromStructure == null) {
 							notAdded += a + ", ";
 							errorResult += a + ", ";
 						}
 						else {
+							//Check for the opposite edge if it's an undirected graph
+							if(structureType == UNDIRECTED_GRAPH) {
+								//Opposite edge wasn't added
+								if(sm.findEdge(currentEdge[1], currentEdge[0]) == null) {
+									notAdded += currentEdge[0] + ">" + currentEdge[1] + ", ";
+									errorResult += currentEdge[0] + ">" + currentEdge[1] + ", ";
+								}
+								else {
+									newEdge = new Edge<Nodo>(new Nodo(fromStructure.end.toString()), new Nodo(fromStructure.start.toString()));
+									edgesList.add(newEdge);
+									nodesList.add(currentEdge[0]);
+									nodesList.add(currentEdge[1]);
+								}
+							}
 							newEdge = new Edge<Nodo>(new Nodo(fromStructure.start.toString()), new Nodo(fromStructure.end.toString()));
 							edgesList.add(newEdge);
 							nodesList.add(currentEdge[0]);
@@ -1127,31 +1182,36 @@ public class StructureAdapter extends JApplet
 					}
 					//Verify still if it was added
 					else {
-						//Check for the opposite edge if it's and undirected graph
-						if(structureType == UNDIRECTED_GRAPH) {
-							if(sm.findEdge(currentEdge[1], currentEdge[0]) != null) {
-								notAdded += currentEdge[1] + ">" + currentEdge[0] + ", ";
-								errorResult += currentEdge[1] + ">" + currentEdge[0] + ", ";
-								newEdge = new Edge<Nodo>(new Nodo(fromStructure.end.toString()), new Nodo(fromStructure.start.toString()));
+						Boolean problemAdding = false;
+						//It was not added
+						if(fromStructure == null) {
+							notAdded += a + ", ";
+						}
+						else {
+							//Check for the opposite edge if it's and undirected graph
+							if(structureType == UNDIRECTED_GRAPH) {
+								if(sm.findEdge(currentEdge[1], currentEdge[0]) != null) {
+									problemAdding = true;
+									notAdded += currentEdge[0] + ">" + currentEdge[1] + ", ";
+									errorResult += currentEdge[0] + ">" + currentEdge[1] + ", ";
+									newEdge = new Edge<Nodo>(new Nodo(fromStructure.end.toString()), new Nodo(fromStructure.start.toString()));
+									edgesList.add(newEdge);
+									nodesList.add(currentEdge[0]);
+									nodesList.add(currentEdge[1]);
+								}
+							}
+							if(sm.findEdge(currentEdge[0], currentEdge[1]) != null) {
+								if(problemAdding = false)
+									errorResult += a + ", ";
+								newEdge = new Edge<Nodo>(new Nodo(fromStructure.start.toString()), new Nodo(fromStructure.end.toString()));
 								edgesList.add(newEdge);
 								nodesList.add(currentEdge[0]);
 								nodesList.add(currentEdge[1]);
 							}
-							else {
-								newEdge = new Edge<Nodo>(new Nodo(fromStructure.end.toString()), new Nodo(fromStructure.start.toString()));
-								edgesList.add(newEdge);
-							}
 						}
-						if(sm.findEdge(currentEdge[0], currentEdge[1]) != null) {
-							errorResult += a + ", ";
-							newEdge = new Edge<Nodo>(new Nodo(fromStructure.start.toString()), new Nodo(fromStructure.end.toString()));
-							edgesList.add(newEdge);
-							nodesList.add(currentEdge[0]);
-							nodesList.add(currentEdge[1]);
-						}
-						else notAdded += a + ", ";
 					}
 				}
+
 			}
 			else notAdded += a + ", ";
 		}

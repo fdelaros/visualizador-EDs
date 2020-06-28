@@ -46,18 +46,30 @@ public class Digraph<K, V> implements IGraph<K, V> {
 	}
 
 	@Override
-	public void addVertex(K idVertex, V infoVertex) {
+	public Boolean addVertex(K idVertex, V infoVertex) {
+		//no se agrega el nodo si ya existe
+		if(getNode(idVertex) != null) 
+			return false;
 		Vertice nuevoNodo = new Vertice( infoVertex, idVertex );
 		HT.put(idVertex, nuevoNodo);
 		nVertices++;
+
+		if(getNode(idVertex) != null) return true;
+
+		return false;
 	}
 
 	@Override
-	public boolean addEdge(K idVertexIni, K idVertexFin, Double infoArc) {
+	public Boolean addEdge(K idVertexIni, K idVertexFin, Double infoArc) {
 		//No se agrega el arco porque ya existe
 		if(findEdge(idVertexIni, idVertexFin) != null) {
 			return false;
 		}
+		//Verificar que los nodos existan
+		if ( HT.get(idVertexIni) == null)
+			return false;
+		if ( HT.get(idVertexFin) == null)
+			return false;
 		else {
 			//Se obtienen los vertices de inicio y fin del arco y se crea el arco
 			Vertice inicio = HT.get(idVertexIni);
@@ -262,16 +274,10 @@ public class Digraph<K, V> implements IGraph<K, V> {
 	public ArrayList<Edge<K>> getEdges() {
 		ArrayList<Edge<K>> edges = new ArrayList<Edge<K>>();
 		for(DiArco arco : edges()) {
-			if(HT.get(arco.fin) != null) {
-				Edge<K> edge = new Edge<K>(arco.inicio, arco.fin);
-				// if(!edges.contains(edge));  // Instruccion con error
-				// Correccion: instruccion corregida
-				// Inicio bloque
-				if(!edges.contains(edge))  
-				{
-					edges.add(edge);
-				}
-				// Fin bloque
+			Edge<K> edge = new Edge<K>(arco.inicio, arco.fin);
+			if(!edges.contains(edge))  
+			{
+				edges.add(edge);
 			}
 		}
 		return edges;
@@ -314,10 +320,8 @@ public class Digraph<K, V> implements IGraph<K, V> {
 		Vertice inicio = HT.get(idVertex);
 		LinkedList<DiArco> lista = inicio.adyacentes;
 		for(DiArco arco : lista) {
-			if(HT.get(arco.fin) != null) {
 				Edge<K> edge = new Edge<K>(arco.inicio, arco.fin);
 				edges.add(edge);
-			}
 		}
 		return edges;
 	}
@@ -361,11 +365,8 @@ public class Digraph<K, V> implements IGraph<K, V> {
 		return nodeSet;
 	}
 
-	public void deleteNode(K idVertex) {
+	public Boolean deleteNode(K idVertex) {
 		HT.delete(idVertex);
-		// Correccion: falta borrar los arcos que llegan al vertice borrado
-		// Inicio Bloque: Recorrer vertices restantes y revisar sus adyacentes
-		//
 		ArrayList<Vertice> vertices = getNodes();
 		for (int i = 0; i < vertices.size(); i++) {
 			LinkedList<DiArco> lista = vertices.get(i).adyacentes;
@@ -377,7 +378,9 @@ public class Digraph<K, V> implements IGraph<K, V> {
 				}
 			}
 		}
-		// Fin Bloque
+		if(getNode(idVertex) == null) return true;
+
+		return false;
 	}
 
 	public ArrayList<Edge<K>> showEdgesSet(){

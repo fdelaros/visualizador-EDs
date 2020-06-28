@@ -47,13 +47,13 @@ public class StandardMethods implements IStandardMethods<Object>{
 	}
 
 	@Override
-	public void addNode(String tag) {
-		list.addNode(list, tag);
+	public Boolean addNode(String tag) {
+		return list.addNode(list, tag);
 	}
 
 	@Override
-	public void deleteNode(String tag) {
-		list.delete(list, tag);
+	public Boolean deleteNode(String tag) {
+		return list.delete(list, tag);
 	}
 
 	@SuppressWarnings("unchecked")

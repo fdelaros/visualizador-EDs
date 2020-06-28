@@ -132,8 +132,12 @@ public class BinaryTree
 	}
 
 	//insertar un nuevo ndo en el arbol de busqueda binaria
-	public void insertarNodo(String valorInsertar)
+	public Boolean insertarNodo(String valorInsertar)
 	{
+		//si el nodo ya existe en el árbol no se agrega
+		if(getNode(valorInsertar) != null) {
+			return false;
+		}
 		if(raiz == null) {
 			raiz = new NodoArbol(valorInsertar);
 			vertices.add(raiz);
@@ -141,6 +145,11 @@ public class BinaryTree
 		else if(!inStructure(valorInsertar)){
 			vertices.add(raiz.insertar(valorInsertar)); //llama al metodo insertar   
 		}
+		
+		//verificar que el nodo se haya agregado
+		if(getNode(valorInsertar) != null) return true;
+		
+		return false;
 
 	}
 
@@ -268,11 +277,17 @@ public class BinaryTree
 		return arcos;
 	}
 
-	public void deleteNode(String tag) {
+	public Boolean deleteNode(String tag) {
 		// Correccion: instruccion corregida
 		raiz = raiz.deleteNode(tag);   // actualiza la raiz si la raiz contiene el dato a eliminar
 		vertices.remove(getNode(tag));
 		parseEdges();
+		
+		//Verificar que se haya eliminado
+		if(getNode(tag) == null)
+			return true;
+		
+		return false;
 	}
 
 	public NodoArbol getParent(NodoArbol son) {

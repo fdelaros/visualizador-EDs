@@ -39,14 +39,16 @@ public class Graph<K,V> implements IGraph<K, V>{
 	}
 
 	@Override
-	public void addVertex(K idVertex, V infoVertex) {
+	public Boolean addVertex(K idVertex, V infoVertex) {
 		Vertice nuevoNodo = new Vertice( infoVertex );
 		HT.put(idVertex, nuevoNodo);
 		nVertices++;
+		
+		return true;
 	}
 
 	@Override
-	public boolean addEdge(K idVertexIni, K idVertexFin, Double infoArc) {
+	public Boolean addEdge(K idVertexIni, K idVertexFin, Double infoArc) {
 		//Se obtienen los vertices de inicio y fin del arco y se crea el arco
 		Vertice inicio = HT.get(idVertexIni);
 		Vertice fin = HT.get(idVertexFin);
